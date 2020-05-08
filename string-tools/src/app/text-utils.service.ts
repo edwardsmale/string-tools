@@ -40,28 +40,6 @@ export class TextUtilsService {
     }
     return integers;
   };
-
-  GetNonNegatives = function(para: string | number[]) : number[] {
-    var integers = isArray(para) ? para : this.ParseIntegers(para);
-    var nonNegatives = [];
-    for (var i = 0; i < integers.length; i++) {
-      if (integers[i] >= 0) {
-        nonNegatives.push(integers[i]);
-      }
-    }
-    return nonNegatives;
-  };
-
-  GetNegatives = function(para: string | number[]) : number[] {
-    var integers = isArray(para) ? para : this.ParseIntegers(para);    
-    var negatives = [];
-    for (var i = 0; i < integers.length; i++) {
-      if (integers[i] < 0) {
-        negatives.push(integers[i]);
-      }
-    }
-    return negatives;
-  };
   
   IsTabDelimited = function(lines: string[]) {
     var i: number;
