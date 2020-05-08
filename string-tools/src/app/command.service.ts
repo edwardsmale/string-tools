@@ -21,6 +21,9 @@ export class CommandService {
           desc: "The string upon which to split."
         }
       ],
+      explain: (function(para: string, isTabDelimited: boolean) {
+
+      }).bind(this),
       exec: (function(value, para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsScalar(value);
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
@@ -37,6 +40,9 @@ export class CommandService {
           desc: "Zero-based. Use negatives to count back from the end."
         }
       ],
+      explain: (function(value, para: string) {
+        }
+      }).bind(this),
       exec: (function(value, para: string) {
         value = this.textUtilsService.AsArray(value);
         var indices = para.trim().split(/[^\d\-]+/);
@@ -59,6 +65,9 @@ export class CommandService {
       name: "tsv",
       desc: "Tab-separates text that has been split.",
       para: [],
+      explain: (function(para: string) {
+
+      }).bind(this),
       exec: (function(value, para: string) {
         value = this.textUtilsService.AsArray(value);
         return value.join("\t");
@@ -93,6 +102,9 @@ export class CommandService {
           desc: "The character(s) to use as the delimiter."
         }
       ],
+      explain: (function(para: string) {
+
+      }).bind(this),
       exec: (function(value, para: string) {
         value = this.textUtilsService.AsArray(value);
 
@@ -143,6 +155,9 @@ export class CommandService {
           desc: "The delimiter to insert between items (default is tab)."
         }
       ],
+      explain: (function(para: string, isTabDelimited: boolean) {
+
+      }).bind(this),
       exec: (function(value, para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsArray(value);
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
@@ -154,6 +169,9 @@ export class CommandService {
       name: "print",
       desc: "Prints output",
       para: [{ name: "<text>", desc: "What to print." }],
+      explain: (function(para: String) {
+
+      }).bind(this),
       exec: (function(value, para: string) {
         var result = para;
         var i: number;
