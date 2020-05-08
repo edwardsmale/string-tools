@@ -10,6 +10,7 @@ import { TextUtilsService } from './text-utils.service';
 export class AppComponent {
   h1 = "string-tools";
   outputValue = "";
+  explain = "";
 
   constructor(private commandService : CommandService, private textUtilsService : TextUtilsService) {
     this.commandService = commandService;

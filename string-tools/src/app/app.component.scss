@@ -9,16 +9,27 @@
     &__button-bar {
       margin: 0.25rem 0;
     }
+    &__top_section {
+      display: flex;
+      flex-direction: row;
+    }
   }
-  
-  .code-window {
+
+  .code-window,
+  .explain-window {
     margin-bottom: 0;
     padding: 0.25rem;
     box-sizing: border-box;
+    height: 8rem;
+  }
+
+  .code-window {
+    width: 25%;
+  }
   
-    width: 100%;
-    height: 5rem;
-    text-align: left;
+  .explain-window {
+    flex-grow: 1;
+    margin-left: 1rem;
   }
   
   .button-bar {
