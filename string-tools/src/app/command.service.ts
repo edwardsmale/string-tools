@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { isArray } from "util";
+import { TextUtilsService } from './text-utils.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommandService {
 
-  constructor() { }
+    constructor(private textUtilsService : TextUtilsService) {
+        this.textUtilsService = textUtilsService;
+      }
 
   commandTypes = [
     {
@@ -18,12 +21,12 @@ export class CommandService {
           desc: "The string upon which to split."
         }
       ],
-      exec: function(value, para: string, isTabDelimited: boolean) {
-        value = isArray(value) ? value[0] : value;
+      exec: (function(value, para: string, isTabDelimited: boolean) {
+        value = this.textUtilsService.AsScalar(value);
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
         var delimiter = para || defaultDelimiter;
         return value.split(new RegExp(delimiter));
-      }
+      }).bind(this)
     },
     {
       name: "at",
@@ -34,9 +37,9 @@ export class CommandService {
           desc: "Zero-based. Use negatives to count back from the end."
         }
       ],
-      exec: function(value, para: string) {
-        value = isArray(value) ? value : value.split(/\s+/);
-        var indices = para.trim().split(/[^\d]+/);
+      exec: (function(value, para: string) {
+        value = this.textUtilsService.AsArray(value);
+        var indices = para.trim().split(/[^\d\-]+/);
         var result = [];
         var i: number;
         for (i = 0; i < indices.length; i++) {
@@ -50,16 +53,16 @@ export class CommandService {
         }
 
         return result;
-      }
+      }).bind(this)
     },
     {
       name: "tsv",
       desc: "Tab-separates text that has been split.",
       para: [],
-      exec: function(value, para: string) {
-        value = isArray(value) ? value : value.split(/\s+/);
+      exec: (function(value, para: string) {
+        value = this.textUtilsService.AsArray(value);
         return value.join("\t");
-      }
+      }).bind(this)
     },
     {
       name: "csv",
@@ -90,8 +93,8 @@ export class CommandService {
           desc: "The character(s) to use as the delimiter."
         }
       ],
-      exec: function(value, para: string) {
-        value = isArray(value) ? value : value.split(/\s+/);
+      exec: (function(value, para: string) {
+        value = this.textUtilsService.AsArray(value);
 
         var options = {
           isDoubleQuote: para.includes('"'),
@@ -129,7 +132,7 @@ export class CommandService {
         };
 
         return toDelimitedString(value, options);
-      }
+      }).bind(this)
     },
     {
       name: "join",
@@ -140,18 +143,18 @@ export class CommandService {
           desc: "The delimiter to insert between items (default is tab)."
         }
       ],
-      exec: function(value, para: string, isTabDelimited: boolean) {
-        value = isArray(value) ? value : value.split(/\s+/);
+      exec: (function(value, para: string, isTabDelimited: boolean) {
+        value = this.textUtilsService.AsArray(value);
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
         var delimiter = para || defaultDelimiter;
         return value.join(delimiter);
-      }
+      }).bind(this)
     },
     {
       name: "print",
       desc: "Prints output",
       para: [{ name: "<text>", desc: "What to print." }],
-      exec: function(value, para: string) {
+      exec: (function(value, para: string) {
         var result = para;
         var i: number;
         if (isArray(value)) {
@@ -188,7 +191,7 @@ export class CommandService {
         } else {
         }
         return result;
-      }
+      }).bind(this)
     }
   ];
 

@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { CommandService } from './command.service';
+import { TextUtilsService } from './text-utils.service';
 
 @Component({
   selector: "app-root",
@@ -10,11 +11,13 @@ export class AppComponent {
   h1 = "string-tools";
   outputValue = "";
 
-  constructor(private commandService : CommandService) {
+  constructor(private commandService : CommandService, private textUtilsService : TextUtilsService) {
     this.commandService = commandService;
+    this.textUtilsService = textUtilsService;
   }
 
   ProcessClick(codeValue: string, inputValue: string) {
-    this.outputValue = this.commandService.processCommands(codeValue, inputValue).join("\r\n");
+    var lines = this.commandService.processCommands(codeValue, inputValue);
+    this.outputValue = this.textUtilsService.LinesToText(lines);
   }
 } 
