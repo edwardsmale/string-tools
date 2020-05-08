@@ -1,13 +1,12 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <div>
   <div class="string-tools">
     <div class="string-tools__top_section">
-      <textarea class="code-window" #codePane>
+      <textarea class="code-window" #codePane (input)="UpdateExplanation(codePane.value, inputPane.value)">
 split ,
 at 1 2
 csv</textarea
       >
-      <textarea class="explain-window">{{ explanation }}</textarea>
+      <textarea class="explain-window">{{ explain }}</textarea>
   </div>
     <div class="button-bar string-tools__button-bar">
       <button class="btn btn-primary" (click)="ProcessClick(codePane.value, inputPane.value)">
