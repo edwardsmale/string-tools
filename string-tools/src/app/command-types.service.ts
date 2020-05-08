@@ -32,7 +32,18 @@ export class CommandTypesService {
         }
       ],
       explain: (function(para: string, isTabDelimited: boolean) {
-        return "split " + para;
+        var defaultDelimiter = isTabDelimited ? "\t" : ",";
+        var delimiter = para || defaultDelimiter;
+        if (delimiter === "\t") {
+          delimiter = "tab";
+        } else if (delimiter === " ") {
+          delimiter = "space";
+        } else if (delimiter === ",") {
+          delimiter = "comma";
+        } else {
+          delimiter = "'" + delimiter + "' character";
+        }
+        return "Split the string on every " + delimiter;
       }).bind(this),
       exec: (function(value, para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsScalar(value);
@@ -51,13 +62,18 @@ export class CommandTypesService {
         }
       ],
       explain: (function(para: string) {
-        return "at " + para;
-        // var positives = this.textUtilsService.GetNegatives(para);
-        // var negatives = this.textUtilsService.GetNonNegatives(para);
-        // var i: number;
-        // for (i = 0; i < positives.length; i++) {
-          
-        // }
+        var indices = this.textUtilsService.ParseIntegers(para);
+        var positions: string[] = [];
+
+        for (var i = 0; i < indices.length; i++) {
+          if (indices[i] >= 0) {
+            positions.push("[" + indices[i].toString() + "]");
+          } else {
+            positions.push("[" + Math.abs(indices[i]) + " from the end" + "]");
+          }
+        }
+
+        return "Get the items at positions " + positions.join(" ");
       }).bind(this),
       exec: (function(value, para: string) {
         value = this.textUtilsService.AsArray(value);
@@ -82,7 +98,7 @@ export class CommandTypesService {
       desc: "Tab-separates text that has been split.",
       para: [],
       explain: (function(para: string) {
-        return "tsv " + para;
+        return "Output array in tab-separated format";
       }).bind(this),
       exec: (function(value, para: string) {
         value = this.textUtilsService.AsArray(value);
@@ -119,7 +135,49 @@ export class CommandTypesService {
         }
       ],
       explain: (function(para: string) {
-        return "csv " + para;
+        var options = {
+          isDoubleQuote: para.includes('"'),
+          isSingleQuote: para.includes("'"),
+          isAtString: para.includes("@"),
+          isEscaped: para.includes("\\"),
+          delimiter: para.replace(/["'\\@]+/, "") || ","
+        };
+
+        var explanation = "Output array";
+        
+        if (options.delimiter === ",") {
+          explanation += " in CSV format";
+        } else {
+          explanation += " separated with ";
+          if (options.delimiter === "\t") {
+            explanation += "tabs ";
+          }
+          else if (options.delimiter === " ") {
+            explanation += "spaces ";
+          }
+          else {
+            explanation += "'" + options.delimiter + "' ";
+          }
+        }
+
+        if (options.isDoubleQuote) {
+          explanation += ", with values in double quotes"
+
+          if (options.isAtString) {
+            explanation += " preceded by @"
+          }
+
+          if (options.isEscaped) {
+            explanation += ", backslash-escaping any double quotes";
+          } else {
+            explanation += ", doubling-up any double quotes";
+          }
+        }
+        else if (options.isSingleQuote) {
+          explanation += ", with values in single quotes"
+        }
+
+        return explanation;
       }).bind(this),
       exec: (function(value, para: string) {
         value = this.textUtilsService.AsArray(value);
@@ -172,7 +230,21 @@ export class CommandTypesService {
         }
       ],
       explain: (function(para: string, isTabDelimited: boolean) {
-        return "join " + para;
+        var defaultDelimiter = isTabDelimited ? "\t" : ",";
+        var delimiter = para || defaultDelimiter;
+        if (delimiter === "\t") {
+          delimiter = "tabs";
+        }
+        else if (delimiter === " ") {
+          delimiter = "spaces";
+        }
+        else if (delimiter === ",") {
+          delimiter = "commas";
+        }
+        else {
+          delimiter = "'" + delimiter + "' characters";
+        }
+        return "Output array, separated with " + delimiter + "; doesn't escape " + delimiter;
       }).bind(this),
       exec: (function(value, para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsArray(value);
