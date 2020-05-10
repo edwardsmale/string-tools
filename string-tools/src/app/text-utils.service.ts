@@ -58,18 +58,29 @@ export class TextUtilsService {
     return true;
   };
 
-  FormatDelimiter = function(delimiter: string) {
-    if (delimiter === "\t") {
-      return "tabs";
+  FormatDelimiter = function(delimiter: string, pluralise: boolean) {
+
+    var formattedDelimiter = formatSingular(delimiter);
+
+    if (pluralise) {
+      formattedDelimiter += "s";
     }
-    else if (delimiter === " ") {
-      return "spaces";
-    }
-    else if (delimiter === ",") {
-      return "commas";
-    }
-    else {
-      return "'" + delimiter + "' characters";
-    }
+
+    return formattedDelimiter;
+
+    var formatSingular = function(delimiter: string) {
+      if (delimiter === "\t") {
+        return "tab";
+      }
+      else if (delimiter === " ") {
+        return "space";
+      }
+      else if (delimiter === ",") {
+        return "comma";
+      }
+      else {
+        return "'" + delimiter + "' character";
+      }
+    };
   }
 }

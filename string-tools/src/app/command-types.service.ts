@@ -35,15 +35,7 @@ export class CommandTypesService {
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
-        if (delimiter === "\t") {
-          delimiter = "tab";
-        } else if (delimiter === " ") {
-          delimiter = "space";
-        } else if (delimiter === ",") {
-          delimiter = "comma";
-        } else {
-          delimiter = "'" + delimiter + "' character";
-        }
+        var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
         return "Split the string on every " + delimiter;
       }).bind(this),
       exec: (function(value, para: string, isTabDelimited: boolean) {
@@ -147,16 +139,15 @@ export class CommandTypesService {
 
         if (para.includes("\\t")) {
           options.delimiter = "\t";
-
           options.isEscaped = para.replace("/\\t/g", "").includes("\\");
         }
 
         var explanation = "Output array";
-        
+
         if (options.delimiter === ",") {
           explanation += " in CSV format";
         } else {
-          var formattedDelimiter = this.textUtilsService.FormatDelimiter(options.delimiter);
+          var formattedDelimiter = this.textUtilsService.FormatDelimiter(options.delimiter, true);
           explanation += " separated with " + formattedDelimiter;
         }
 
@@ -237,7 +228,7 @@ export class CommandTypesService {
         var defaultDelimiter = isTabDelimited ? "\t" : " ";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
-        var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter);
+        var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, true);
         return "Output array separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
       }).bind(this),
       exec: (function(value, para: string, isTabDelimited: boolean) {
