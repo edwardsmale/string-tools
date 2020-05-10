@@ -23,6 +23,24 @@ export class CommandTypesService {
 
   CommandTypes = [
     {
+      name: "regex",
+      desc: "Sets the current regex",
+      para: [
+        {
+          name: "Regex",
+          desc: "String defining the regex"
+        }
+      ],
+      explain: (function(para: string, context: any) {
+        context.regex = this.textUtilsService.AsScalar(para);
+        return "Set the current regex to " + para;
+      }).bind(this),
+      exec: (function(value: string | string[], para: string, context: any) {
+        context.regex = this.textUtilsService.AsScalar(para);
+        return value;
+      }).bind(this)
+    },
+    {
       name: "split",
       desc: "Splits up the line of text.",
       para: [
@@ -32,18 +50,26 @@ export class CommandTypesService {
         }
       ],
       explain: (function(para: string, context: any) {
-        var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
-        para = para === "\\t" ? "\t" : para;
-        var delimiter = para || defaultDelimiter;
-        var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
-        return "Split the line on every " + formattedDelimiter;
+        if (context.regex !== null) {
+          return "Split the line using the regex " + context.regex;
+        } else {
+          var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
+          para = para === "\\t" ? "\t" : para;
+          var delimiter = para || defaultDelimiter;
+          var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
+          return "Split the line on every " + formattedDelimiter;
+        }
       }).bind(this),
       exec: (function(value: string | string[], para: string, context: any) {
         value = this.textUtilsService.AsScalar(value);
-        var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
-        para = para === "\\t" ? "\t" : para;
-        var delimiter = para || defaultDelimiter;
-        return (value as string).split(new RegExp(delimiter));
+        if (context.regex !== null) {
+          return (value as string).split(new RegExp(context.regex));
+        } else {
+          var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
+          para = para === "\\t" ? "\t" : para;
+          var delimiter = para || defaultDelimiter;
+          return (value as string).split(new RegExp(delimiter));
+        }
       }).bind(this)
     },
     {

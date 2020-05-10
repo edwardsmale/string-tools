@@ -21,13 +21,16 @@ export class CommandService {
     var outputLines = [];
     var i: number;
 
-    var isTabDelimited = this.textUtilsService.IsTabDelimited(lines);
+    var context = {
+      isTabDelimited: this.textUtilsService.IsTabDelimited(lines),
+      regex: (null as RegExp)
+    };
 
     for (i = 0; i < codeLines.length; i++) {
       var parsedCommand = this.commandParsingService.ParseCodeLine(codeLines[i]);
       var commandType = parsedCommand.commandType;
       var para = parsedCommand.para;
-      var explanation = parsedCommand.commandType.explain(para, isTabDelimited);
+      var explanation = parsedCommand.commandType.explain(para, context);
       outputLines.push(explanation);
     }
 
@@ -41,7 +44,8 @@ export class CommandService {
     var j: number;
 
     var context = {
-      isTabDelimited: this.textUtilsService.IsTabDelimited(lines)
+      isTabDelimited: this.textUtilsService.IsTabDelimited(lines),
+      regex: (null as RegExp)
     };
 
     var currentValues: (string | string[])[] = lines;
