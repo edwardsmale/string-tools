@@ -37,28 +37,43 @@ export class CommandService {
   processCommands(codeValue: string, inputValue: string) {
     var codeLines = codeValue.trim().split(/\n/);
     var lines = inputValue.trim().split(/\n/);
-    var outputLines = [];
     var i: number;
     var j: number;
 
     var isTabDelimited = this.textUtilsService.IsTabDelimited(lines);
 
-    for (j = 0; j < lines.length; j++) {
-      var currentValue: string | string[] = lines[j];
-      for (i = 0; i < codeLines.length; i++) {
+    var currentValues: (string | string[])[] = lines;
 
-        var parsedCommand = this.commandParsingService.ParseCodeLine(codeLines[i]);
-        var commandType = parsedCommand.commandType;
-        var para = parsedCommand.para;
-        currentValue = commandType.exec(currentValue, para, isTabDelimited);
+    for (i = 0; i < codeLines.length; i++) {
+
+      var parsedCommand = this.commandParsingService.ParseCodeLine(codeLines[i]);
+      var commandType = parsedCommand.commandType;
+      var para = parsedCommand.para;
+
+      var newValues: (string | string[])[] = [];
+
+      for (j = 0; j < currentValues.length; j++) {
+        const newLineValue = commandType.exec(currentValues[j], para, isTabDelimited);
+        newValues.push(newLineValue);
       }
 
-      if (isArray(currentValue)) {
-        outputLines.push((currentValue as string[]).join(" "));
+      currentValues = newValues;
+    }
+
+    var outputLines: string[] = [];
+
+    for (i = 0; i < currentValues.length; i++) {
+      var value = currentValues[i];
+      if (isArray(value)) {
+        var arrayValue = value as string[];
+        for (j = 0; j < arrayValue.length; j++) {
+          outputLines.push(arrayValue[j]);
+        }
       } else {
-        outputLines.push((currentValue as string));
+        outputLines.push(value as string);
       }
     }
+
     return outputLines;
   }
 }
