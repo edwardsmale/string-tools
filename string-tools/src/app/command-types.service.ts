@@ -38,7 +38,7 @@ export class CommandTypesService {
         var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
         return "Split the string on every " + delimiter;
       }).bind(this),
-      exec: (function(value, para: string, isTabDelimited: boolean) {
+      exec: (function(value: string | string[], para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsScalar(value);
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
         para = para === "\\t" ? "\t" : para;
@@ -69,7 +69,7 @@ export class CommandTypesService {
 
         return "Get the items at positions " + positions.join(" ");
       }).bind(this),
-      exec: (function(value, para: string) {
+      exec: (function(value: string | string[], para: string) {
         value = this.textUtilsService.AsArray(value);
         var indices = para.trim().split(/[^\d\-]+/);
         var result = [];
@@ -94,7 +94,7 @@ export class CommandTypesService {
       explain: (function(para: string) {
         return "Output array in tab-separated format";
       }).bind(this),
-      exec: (function(value, para: string) {
+      exec: (function(value: string | string[], para: string) {
         value = this.textUtilsService.AsArray(value);
         return (value as string[]).join("\t");
       }).bind(this)
@@ -170,7 +170,7 @@ export class CommandTypesService {
 
         return explanation;
       }).bind(this),
-      exec: (function(value, para: string) {
+      exec: (function(value: string | string[], para: string) {
         value = this.textUtilsService.AsArray(value);
 
         var options = {
@@ -231,7 +231,7 @@ export class CommandTypesService {
         var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, true);
         return "Output array separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
       }).bind(this),
-      exec: (function(value, para: string, isTabDelimited: boolean) {
+      exec: (function(value: string | string[], para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsArray(value);
         var defaultDelimiter = isTabDelimited ? "\t" : " ";
         para = para === "\\t" ? "\t" : para;
@@ -246,7 +246,7 @@ export class CommandTypesService {
       explain: (function(para: String) {
         return "print " + para;
       }).bind(this),
-      exec: (function(value, para: string) {
+      exec: (function(value: string | string[], para: string) {
         var result = para;
         var i: number;
         if (isArray(value)) {
