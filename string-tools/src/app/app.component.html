@@ -1,7 +1,9 @@
 <div>
   <div class="string-tools">
     <div class="string-tools__top_section">
-      <textarea class="code-window" #codePane (input)="UpdateExplanation(codePane.value, inputPane.value)">
+      <textarea class="code-window" #codePane 
+        (input)="UpdateExplanation(codePane.value, inputPane.value)" 
+        (input)="ProcessClick(codePane.value, inputPane.value)">
 split ,
 at 1 2
 csv</textarea
@@ -15,7 +17,8 @@ csv</textarea
     </div>
     <div class="panes-container">
       <div class="pane pane--left">
-        <textarea class="pane-textarea" #inputPane>
+        <textarea class="pane-textarea" #inputPane
+          (input)="ProcessClick(codePane.value, inputPane.value)">
 1,W22355,foo
 2,X13989,bar
 3,Y22492,baz

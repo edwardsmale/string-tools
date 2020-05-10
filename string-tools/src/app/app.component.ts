@@ -25,8 +25,13 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit() {  }
+
   ngAfterViewChecked() {
     this.UpdateExplanation(
+      this.codePaneRef.nativeElement.value, 
+      this.inputPaneRef.nativeElement.value
+    );
+    this.ProcessClick(
       this.codePaneRef.nativeElement.value, 
       this.inputPaneRef.nativeElement.value
     );
