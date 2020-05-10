@@ -33,6 +33,7 @@ export class CommandTypesService {
       ],
       explain: (function(para: string, isTabDelimited: boolean) {
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
+        para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         if (delimiter === "\t") {
           delimiter = "tab";
@@ -48,6 +49,7 @@ export class CommandTypesService {
       exec: (function(value, para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsScalar(value);
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
+        para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         return value.split(new RegExp(delimiter));
       }).bind(this)
@@ -143,6 +145,12 @@ export class CommandTypesService {
           delimiter: para.replace(/["'\\@]+/, "") || ","
         };
 
+        if (para.includes("\\t")) {
+          options.delimiter = "\t";
+
+          options.isEscaped = para.replace("/\\t/g", "").includes("\\");
+        }
+
         var explanation = "Output array";
         
         if (options.delimiter === ",") {
@@ -181,6 +189,10 @@ export class CommandTypesService {
           isEscaped: para.includes("\\"),
           delimiter: para.replace(/["'\\@]+/, "") || ","
         };
+
+        if (para.includes("\\t")) {
+          options.delimiter = "\t";
+        }
 
         var toDelimitedString = function(value: string[], options) {
           var result = [];
@@ -222,14 +234,16 @@ export class CommandTypesService {
         }
       ],
       explain: (function(para: string, isTabDelimited: boolean) {
-        var defaultDelimiter = isTabDelimited ? "\t" : ",";
+        var defaultDelimiter = isTabDelimited ? "\t" : " ";
+        para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter);
         return "Output array separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
       }).bind(this),
       exec: (function(value, para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsArray(value);
-        var defaultDelimiter = isTabDelimited ? "\t" : ",";
+        var defaultDelimiter = isTabDelimited ? "\t" : " ";
+        para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         return value.join(delimiter);
       }).bind(this)
