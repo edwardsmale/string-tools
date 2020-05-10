@@ -40,7 +40,9 @@ export class CommandService {
     var i: number;
     var j: number;
 
-    var isTabDelimited = this.textUtilsService.IsTabDelimited(lines);
+    var context = {
+      isTabDelimited: this.textUtilsService.IsTabDelimited(lines)
+    };
 
     var currentValues: (string | string[])[] = lines;
 
@@ -53,7 +55,7 @@ export class CommandService {
       var newValues: (string | string[])[] = [];
 
       for (j = 0; j < currentValues.length; j++) {
-        const newLineValue = commandType.exec(currentValues[j], para, isTabDelimited);
+        const newLineValue = commandType.exec(currentValues[j], para, context);
         newValues.push(newLineValue);
       }
 

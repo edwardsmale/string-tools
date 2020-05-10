@@ -31,16 +31,16 @@ export class CommandTypesService {
           desc: "The string upon which to split."
         }
       ],
-      explain: (function(para: string, isTabDelimited: boolean) {
-        var defaultDelimiter = isTabDelimited ? "\t" : ",";
+      explain: (function(para: string, context: any) {
+        var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
         return "Split the line on every " + formattedDelimiter;
       }).bind(this),
-      exec: (function(value: string | string[], para: string, isTabDelimited: boolean) {
+      exec: (function(value: string | string[], para: string, context: any) {
         value = this.textUtilsService.AsScalar(value);
-        var defaultDelimiter = isTabDelimited ? "\t" : ",";
+        var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         return (value as string).split(new RegExp(delimiter));
@@ -224,16 +224,16 @@ export class CommandTypesService {
           desc: "The delimiter to insert between items (default is tab)."
         }
       ],
-      explain: (function(para: string, isTabDelimited: boolean) {
-        var defaultDelimiter = isTabDelimited ? "\t" : " ";
+      explain: (function(para: string, context: any) {
+        var defaultDelimiter = context.isTabDelimited ? "\t" : " ";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, true);
         return "Output array separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
       }).bind(this),
-      exec: (function(value: string | string[], para: string, isTabDelimited: boolean) {
+      exec: (function(value: string | string[], para: string, context: any) {
         value = this.textUtilsService.AsArray(value);
-        var defaultDelimiter = isTabDelimited ? "\t" : " ";
+        var defaultDelimiter = context.isTabDelimited ? "\t" : " ";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         return (value as string[]).join(delimiter);
