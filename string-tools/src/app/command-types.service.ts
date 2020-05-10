@@ -36,7 +36,7 @@ export class CommandTypesService {
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
         var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
-        return "Split the string on every " + delimiter;
+        return "Split the line on every " + formattedDelimiter;
       }).bind(this),
       exec: (function(value: string | string[], para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsScalar(value);

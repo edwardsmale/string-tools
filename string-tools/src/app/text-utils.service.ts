@@ -60,15 +60,7 @@ export class TextUtilsService {
 
   FormatDelimiter = function(delimiter: string, pluralise: boolean) {
 
-    var formattedDelimiter = formatSingular(delimiter);
-
-    if (pluralise) {
-      formattedDelimiter += "s";
-    }
-
-    return formattedDelimiter;
-
-    var formatSingular = function(delimiter: string) {
+    var formatDelimiterSingular = function(delimiter: string) {
       if (delimiter === "\t") {
         return "tab";
       }
@@ -82,5 +74,9 @@ export class TextUtilsService {
         return "'" + delimiter + "' character";
       }
     };
+
+    var formattedDelimiter = formatDelimiterSingular(delimiter);
+
+    return pluralise ? formattedDelimiter + "s" : formattedDelimiter;
   }
 }
