@@ -18,17 +18,17 @@ export class TextUtilsService {
 
   AsArray(value : string | string[]): string[] {
     if (isArray(value)) {
-      return value;
+      return (value as string[]);
     } else {
-      return value.split(/\s+/);
+      return (value as string).split(/\s+/);
     }
   }
 
   AsScalar(value : string | string[]): string {
     if (isArray(value)) {
-      return value[0];
+      return (value as string[])[0];
     } else {
-      return value;
+      return (value as string);
     }
   }
 

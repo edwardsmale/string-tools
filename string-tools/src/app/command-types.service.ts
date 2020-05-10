@@ -51,7 +51,7 @@ export class CommandTypesService {
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
-        return value.split(new RegExp(delimiter));
+        return (value as string).split(new RegExp(delimiter));
       }).bind(this)
     },
     {
@@ -104,7 +104,7 @@ export class CommandTypesService {
       }).bind(this),
       exec: (function(value, para: string) {
         value = this.textUtilsService.AsArray(value);
-        return value.join("\t");
+        return (value as string[]).join("\t");
       }).bind(this)
     },
     {
@@ -221,7 +221,7 @@ export class CommandTypesService {
           return result.join(options.delimiter);
         };
 
-        return toDelimitedString(value, options);
+        return toDelimitedString((value as string[]), options);
       }).bind(this)
     },
     {
@@ -245,7 +245,7 @@ export class CommandTypesService {
         var defaultDelimiter = isTabDelimited ? "\t" : " ";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
-        return value.join(delimiter);
+        return (value as string[]).join(delimiter);
       }).bind(this)
     },
     {

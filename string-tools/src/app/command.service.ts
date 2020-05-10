@@ -54,9 +54,9 @@ export class CommandService {
       }
 
       if (isArray(currentValue)) {
-        outputLines.push(currentValue.join(" "));
+        outputLines.push((currentValue as string[]).join(" "));
       } else {
-        outputLines.push(currentValue);
+        outputLines.push((currentValue as string));
       }
     }
     return outputLines;
