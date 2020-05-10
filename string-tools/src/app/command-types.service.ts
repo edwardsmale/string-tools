@@ -92,7 +92,7 @@ export class CommandTypesService {
       desc: "Tab-separates text that has been split.",
       para: [],
       explain: (function(para: string) {
-        return "Output array in tab-separated format";
+        return "Output the items in tab-separated format";
       }).bind(this),
       exec: (function(value: string | string[], para: string) {
         value = this.textUtilsService.AsArray(value);
@@ -142,7 +142,7 @@ export class CommandTypesService {
           options.isEscaped = para.replace("/\\t/g", "").includes("\\");
         }
 
-        var explanation = "Output array";
+        var explanation = "Output the items";
 
         if (options.delimiter === ",") {
           explanation += " in CSV format";
