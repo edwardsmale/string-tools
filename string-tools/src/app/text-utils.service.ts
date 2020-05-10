@@ -57,4 +57,19 @@ export class TextUtilsService {
     }
     return true;
   };
+
+  FormatDelimiter = function(delimiter: string) {
+    if (delimiter === "\t") {
+      return "tabs";
+    }
+    else if (delimiter === " ") {
+      return "spaces";
+    }
+    else if (delimiter === ",") {
+      return "commas";
+    }
+    else {
+      return "'" + delimiter + "' characters";
+    }
+  }
 }

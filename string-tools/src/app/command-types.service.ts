@@ -148,16 +148,8 @@ export class CommandTypesService {
         if (options.delimiter === ",") {
           explanation += " in CSV format";
         } else {
-          explanation += " separated with ";
-          if (options.delimiter === "\t") {
-            explanation += "tabs ";
-          }
-          else if (options.delimiter === " ") {
-            explanation += "spaces ";
-          }
-          else {
-            explanation += "'" + options.delimiter + "' ";
-          }
+          var formattedDelimiter = this.textUtilsService.FormatDelimiter(options.delimiter);
+          explanation += " separated with " + formattedDelimiter;
         }
 
         if (options.isDoubleQuote) {
@@ -232,19 +224,8 @@ export class CommandTypesService {
       explain: (function(para: string, isTabDelimited: boolean) {
         var defaultDelimiter = isTabDelimited ? "\t" : ",";
         var delimiter = para || defaultDelimiter;
-        if (delimiter === "\t") {
-          delimiter = "tabs";
-        }
-        else if (delimiter === " ") {
-          delimiter = "spaces";
-        }
-        else if (delimiter === ",") {
-          delimiter = "commas";
-        }
-        else {
-          delimiter = "'" + delimiter + "' characters";
-        }
-        return "Output array, separated with " + delimiter + "; doesn't escape " + delimiter;
+        var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter);
+        return "Output array separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
       }).bind(this),
       exec: (function(value, para: string, isTabDelimited: boolean) {
         value = this.textUtilsService.AsArray(value);
