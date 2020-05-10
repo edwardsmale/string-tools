@@ -31,13 +31,13 @@ export class CommandTypesService {
           desc: "String defining the regex"
         }
       ],
-      explain: (function(para: string, context: any) {
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         context.regex = this.textUtilsService.AsScalar(para);
-        return "Set the current regex to " + para;
-      }).bind(this),
-      exec: (function(value: string | string[], para: string, context: any) {
-        context.regex = this.textUtilsService.AsScalar(para);
-        return value;
+        if (explain) {
+          return "Set the current regex to " + para;
+        } else {
+          return value;
+        }
       }).bind(this)
     },
     {
@@ -49,26 +49,24 @@ export class CommandTypesService {
           desc: "The string upon which to split."
         }
       ],
-      explain: (function(para: string, context: any) {
-        if (context.regex !== null) {
-          return "Split the line using the regex " + context.regex;
-        } else {
-          var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
-          para = para === "\\t" ? "\t" : para;
-          var delimiter = para || defaultDelimiter;
-          var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
-          return "Split the line on every " + formattedDelimiter;
-        }
-      }).bind(this),
-      exec: (function(value: string | string[], para: string, context: any) {
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         value = this.textUtilsService.AsScalar(value);
         if (context.regex !== null) {
-          return (value as string).split(new RegExp(context.regex));
+          if (explain) {
+            return "Split the line using the regex " + context.regex;
+          } else {
+            return (value as string).split(new RegExp(context.regex));
+          }
         } else {
           var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
           para = para === "\\t" ? "\t" : para;
           var delimiter = para || defaultDelimiter;
-          return (value as string).split(new RegExp(delimiter));
+          if (explain) {
+            var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
+            return "Split the line on every " + formattedDelimiter;
+          } else {
+            return (value as string).split(new RegExp(delimiter));
+          }
         }
       }).bind(this)
     },
@@ -81,48 +79,49 @@ export class CommandTypesService {
           desc: "Zero-based. Use negatives to count back from the end."
         }
       ],
-      explain: (function(para: string) {
-        var indices = this.textUtilsService.ParseIntegers(para);
-        var positions: string[] = [];
-
-        for (var i = 0; i < indices.length; i++) {
-          if (indices[i] >= 0) {
-            positions.push("[" + indices[i].toString() + "]");
-          } else {
-            positions.push("[" + Math.abs(indices[i]) + " from the end" + "]");
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        if (explain) {
+          const indices = this.textUtilsService.ParseIntegers(para);
+          var positions: string[] = [];
+  
+          for (var i = 0; i < indices.length; i++) {
+            if (indices[i] >= 0) {
+              positions.push("[" + indices[i].toString() + "]");
+            } else {
+              positions.push("[" + Math.abs(indices[i]) + " from the end" + "]");
+            }
           }
+          return "Get the items at positions " + positions.join(" ");
+        } else {
+          value = this.textUtilsService.AsArray(value);
+          const indices = para.trim().split(/[^\d\-]+/);
+          var result = [];
+          var i: number;
+          for (i = 0; i < indices.length; i++) {
+            var index = parseInt(indices[i], 10);
+            if (index < 0) {
+              index = value.length + index;
+            }
+            if (index >= 0 && index < value.length) {
+              result.push(value[index]);
+            }
+          }
+
+          return result;
         }
-
-        return "Get the items at positions " + positions.join(" ");
-      }).bind(this),
-      exec: (function(value: string | string[], para: string) {
-        value = this.textUtilsService.AsArray(value);
-        var indices = para.trim().split(/[^\d\-]+/);
-        var result = [];
-        var i: number;
-        for (i = 0; i < indices.length; i++) {
-          var index = parseInt(indices[i], 10);
-          if (index < 0) {
-            index = value.length + index;
-          }
-          if (index >= 0 && index < value.length) {
-            result.push(value[index]);
-          }
-        }
-
-        return result;
       }).bind(this)
     },
     {
       name: "tsv",
       desc: "Tab-separates text that has been split.",
       para: [],
-      explain: (function(para: string) {
-        return "Output the items in tab-separated format";
-      }).bind(this),
-      exec: (function(value: string | string[], para: string) {
-        value = this.textUtilsService.AsArray(value);
-        return (value as string[]).join("\t");
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        if (explain) {
+          return "Output the items in tab-separated format";
+        } else {
+          value = this.textUtilsService.AsArray(value);
+          return (value as string[]).join("\t");
+        }
       }).bind(this)
     },
     {
@@ -154,49 +153,7 @@ export class CommandTypesService {
           desc: "The character(s) to use as the delimiter."
         }
       ],
-      explain: (function(para: string) {
-        var options = {
-          isDoubleQuote: para.includes('"'),
-          isSingleQuote: para.includes("'"),
-          isAtString: para.includes("@"),
-          isEscaped: para.includes("\\"),
-          delimiter: para.replace(/["'\\@]+/, "") || ","
-        };
-
-        if (para.includes("\\t")) {
-          options.delimiter = "\t";
-          options.isEscaped = para.replace("/\\t/g", "").includes("\\");
-        }
-
-        var explanation = "Output the items";
-
-        if (options.delimiter === ",") {
-          explanation += " in CSV format";
-        } else {
-          var formattedDelimiter = this.textUtilsService.FormatDelimiter(options.delimiter, true);
-          explanation += " separated with " + formattedDelimiter;
-        }
-
-        if (options.isDoubleQuote) {
-          explanation += ", with values in double quotes"
-
-          if (options.isAtString) {
-            explanation += " preceded by @"
-          }
-
-          if (options.isEscaped) {
-            explanation += ", backslash-escaping any double quotes";
-          } else {
-            explanation += ", doubling-up any double quotes";
-          }
-        }
-        else if (options.isSingleQuote) {
-          explanation += ", with values in single quotes"
-        }
-
-        return explanation;
-      }).bind(this),
-      exec: (function(value: string | string[], para: string) {
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         value = this.textUtilsService.AsArray(value);
 
         var options = {
@@ -211,32 +168,65 @@ export class CommandTypesService {
           options.delimiter = "\t";
         }
 
-        var toDelimitedString = function(value: string[], options) {
-          var result = [];
-          var i: number;
-          for (i = 0; i < value.length; i++) {
-            var val = value[i];
-            if (options.isDoubleQuote || val.includes(options.delimiter)) {
-              if (options.isEscaped) {
-                // Replace " with \"
-                val = val.replace(new RegExp('"'), '\\"');
-                val = '"' + val + '"';
-              } else {
-                // Replace " with ""
-                val = val.replace(new RegExp('"'), '""');
-                val = '"' + val + '"';
-                if (options.isAtString) {
-                  val = "@" + val;
-                }
-              }
-            } else if (options.isSingleQuote) {
-              val = val.replace(new RegExp("'"), "''");
-              val = "'" + val + "'";
-            }
-            result.push(val);
+        if (explain) {
+
+          var explanation = "Output the items";
+
+          if (options.delimiter === ",") {
+            explanation += " in CSV format";
+          } else {
+            var formattedDelimiter = this.textUtilsService.FormatDelimiter(options.delimiter, true);
+            explanation += " separated with " + formattedDelimiter;
           }
-          return result.join(options.delimiter);
-        };
+  
+          if (options.isDoubleQuote) {
+            explanation += ", with values in double quotes"
+  
+            if (options.isAtString) {
+              explanation += " preceded by @"
+            }
+  
+            if (options.isEscaped) {
+              explanation += ", backslash-escaping any double quotes";
+            } else {
+              explanation += ", doubling-up any double quotes";
+            }
+          }
+          else if (options.isSingleQuote) {
+            explanation += ", with values in single quotes"
+          }
+  
+          return explanation;
+
+        } else {
+
+          var toDelimitedString = function(value: string[], options) {
+            var result = [];
+            var i: number;
+            for (i = 0; i < value.length; i++) {
+              var val = value[i];
+              if (options.isDoubleQuote || val.includes(options.delimiter)) {
+                if (options.isEscaped) {
+                  // Replace " with \"
+                  val = val.replace(new RegExp('"'), '\\"');
+                  val = '"' + val + '"';
+                } else {
+                  // Replace " with ""
+                  val = val.replace(new RegExp('"'), '""');
+                  val = '"' + val + '"';
+                  if (options.isAtString) {
+                    val = "@" + val;
+                  }
+                }
+              } else if (options.isSingleQuote) {
+                val = val.replace(new RegExp("'"), "''");
+                val = "'" + val + "'";
+              }
+              result.push(val);
+            }
+            return result.join(options.delimiter);
+          };
+        }
 
         return toDelimitedString((value as string[]), options);
       }).bind(this)
@@ -250,65 +240,65 @@ export class CommandTypesService {
           desc: "The delimiter to insert between items (default is tab)."
         }
       ],
-      explain: (function(para: string, context: any) {
-        var defaultDelimiter = context.isTabDelimited ? "\t" : " ";
-        para = para === "\\t" ? "\t" : para;
-        var delimiter = para || defaultDelimiter;
-        var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, true);
-        return "Output array separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
-      }).bind(this),
-      exec: (function(value: string | string[], para: string, context: any) {
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         value = this.textUtilsService.AsArray(value);
         var defaultDelimiter = context.isTabDelimited ? "\t" : " ";
         para = para === "\\t" ? "\t" : para;
         var delimiter = para || defaultDelimiter;
-        return (value as string[]).join(delimiter);
+
+        if (explain) {
+          var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, true);
+          return "Output array separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
+        } else {
+          return (value as string[]).join(delimiter);
+        }
       }).bind(this)
     },
     {
       name: "print",
       desc: "Prints output",
       para: [{ name: "<text>", desc: "What to print." }],
-      explain: (function(para: String) {
-        return "print " + para;
-      }).bind(this),
-      exec: (function(value: string | string[], para: string) {
-        var result = para;
-        var i: number;
-        if (isArray(value)) {
-          // Replace $1..$9 with the value at index 1..9.
-          for (i = 0; i <= 9; i++) {
-            if (i < value.length) {
-              result = result.replace(new RegExp("\\$" + i, "g"), value[i]);
-            }
-          }
-          // Replace $-1..$-9 with the value -1..-9 from the end.
-          for (i = 1; i <= 9; i++) {
-            if (value.length - i >= 0) {
-              result = result.replace(
-                new RegExp("\\$-" + i, "g"),
-                value[value.length - i]
-              );
-            }
-          }
-          // Replace $A..$Z and $a..$z with the value at index 10..35.
-          for (i = 0; i < 26; i++) {
-            if (i + 10 < value.length) {
-              result = result.replace(
-                new RegExp(
-                  "\\$[" +
-                    String.fromCharCode(i + 65) +
-                    String.fromCharCode(i + 97) +
-                    "]",
-                  "g"
-                ),
-                value[i + 10]
-              );
-            }
-          }
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        if (explain) {
+          return "print " + para;
         } else {
+          var result = para;
+          var i: number;
+          if (isArray(value)) {
+            // Replace $1..$9 with the value at index 1..9.
+            for (i = 0; i <= 9; i++) {
+              if (i < value.length) {
+                result = result.replace(new RegExp("\\$" + i, "g"), value[i]);
+              }
+            }
+            // Replace $-1..$-9 with the value -1..-9 from the end.
+            for (i = 1; i <= 9; i++) {
+              if (value.length - i >= 0) {
+                result = result.replace(
+                  new RegExp("\\$-" + i, "g"),
+                  value[value.length - i]
+                );
+              }
+            }
+            // Replace $A..$Z and $a..$z with the value at index 10..35.
+            for (i = 0; i < 26; i++) {
+              if (i + 10 < value.length) {
+                result = result.replace(
+                  new RegExp(
+                    "\\$[" +
+                      String.fromCharCode(i + 65) +
+                      String.fromCharCode(i + 97) +
+                      "]",
+                    "g"
+                  ),
+                  value[i + 10]
+                );
+              }
+            }
+          } else {
+          }
+          return result;
         }
-        return result;
       }).bind(this)
     }
   ];  

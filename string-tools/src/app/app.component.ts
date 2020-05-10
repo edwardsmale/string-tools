@@ -38,11 +38,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   UpdateExplanation(codeValue: string, inputValue: string) {
-    this.explain = this.commandService.explainCommands(codeValue, inputValue);
+    var lines = this.commandService.processCommands(codeValue, inputValue, true);
+    this.explain = this.textUtilsService.LinesToText(lines);
   }
 
   ProcessClick(codeValue: string, inputValue: string) {
-    var lines = this.commandService.processCommands(codeValue, inputValue);
+    var lines = this.commandService.processCommands(codeValue, inputValue, false);
     this.outputValue = this.textUtilsService.LinesToText(lines);
   }
 } 
