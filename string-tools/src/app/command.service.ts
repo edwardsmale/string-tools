@@ -52,14 +52,19 @@ export class CommandService {
 
     for (i = 0; i < codeLines.length; i++) {
 
-      var parsedCommand = this.commandParsingService.ParseCodeLine(codeLines[i]);
-      var commandType = parsedCommand.commandType;
-      var para = parsedCommand.para;
+      var parsedCommand = this.commandParsingService.ParseCodeLine(
+        codeLines[i]
+      );
 
       var newValues: (string | string[])[] = [];
 
       for (j = 0; j < currentValues.length; j++) {
-        const newLineValue = commandType.exec(currentValues[j], para, context);
+        const newLineValue = parsedCommand.commandType.exec(
+          currentValues[j], 
+          parsedCommand.para, 
+          context
+        );
+
         newValues.push(newLineValue);
       }
 
