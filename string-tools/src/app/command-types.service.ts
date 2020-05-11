@@ -14,7 +14,7 @@ export class CommandTypesService {
   FindCommandType = function(name: string) {
     var i: number;
     for (i = 0; i < this.CommandTypes.length; i++) {
-      if (new RegExp(this.CommandTypes[i].name).test(name)) {
+      if (new RegExp("^" + this.CommandTypes[i].name).test(name)) {
         return this.CommandTypes[i];
       }
     }
@@ -102,11 +102,11 @@ export class CommandTypesService {
     },
     {
       name: "match|filter",
-      desc: "Filters the input to only rows which match",
+      desc: "Only lines which match a regex or search string",
       para: [
         {
           name: "Regex",
-          desc: "Specifies the pattern which rows must match"
+          desc: "The regex which lines must match"
         }
       ],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
@@ -133,6 +133,44 @@ export class CommandTypesService {
               return (value as string[]).filter(function (val: string) { return new RegExp(regex).test(val); });
             } else {
               return new RegExp(regex).test(value as string) ? value : null;
+            }
+          }
+        }
+      }).bind(this)
+    },
+    {
+      name: "nomatch|exclude",
+      desc: "Exclude lines that match a regex or search string",
+      para: [
+        {
+          name: "Regex",
+          desc: "The regex that lines must not match"
+        }
+      ],
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+
+        var regex = para || context.regex;
+
+        if (!regex && context.searchString) {
+          if (explain) {
+            return "Exclude lines containing '" + context.searchString + "'";
+          } else {
+            if (isArray(value)) {
+              return (value as string[]).filter(function (val: string) { return !val.includes(context.searchString); });
+            } else {
+              return (value as string).includes(context.searchString) ? null : value;
+            }
+          }
+        }
+        else
+        {
+          if (explain) {
+            return "Exclude lines matching the regex " + regex;
+          } else {
+            if (isArray(value)) {
+              return (value as string[]).filter(function (val: string) { return !new RegExp(regex).test(val); });
+            } else {
+              return new RegExp(regex).test(value as string) ? null : value;
             }
           }
         }
