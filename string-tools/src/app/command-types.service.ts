@@ -354,7 +354,7 @@ export class CommandTypesService {
 
         if (explain) {
           var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, true);
-          return "Output array separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
+          return "Output items separated with " + formattedDelimiter + " - doesn't escape " + formattedDelimiter + " in values";
         } else {
           return (value as string[]).join(delimiter);
         }
