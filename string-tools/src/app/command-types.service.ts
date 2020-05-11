@@ -33,8 +33,28 @@ export class CommandTypesService {
       ],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         context.regex = this.textUtilsService.AsScalar(para);
+        context.searchString = null;
         if (explain) {
           return "Set the current regex to " + para;
+        } else {
+          return value;
+        }
+      }).bind(this)
+    },
+    {
+      name: "searchString|search-string",
+      desc: "Sets the current search string",
+      para: [
+        {
+          name: "Search String",
+          desc: "The search string to set"
+        }
+      ],
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        context.searchString = this.textUtilsService.AsScalar(para);
+        context.regex = null;
+        if (explain) {
+          return "Set the current search string to " + para;
         } else {
           return value;
         }
@@ -51,21 +71,69 @@ export class CommandTypesService {
       ],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         value = this.textUtilsService.AsScalar(value);
-        if (context.regex !== null) {
+
+        if (!para && context.regex) {
           if (explain) {
             return "Split the line using the regex " + context.regex;
           } else {
             return (value as string).split(new RegExp(context.regex));
           }
-        } else {
+        }
+        else if (!para && context.searchString) {
+          if (explain) {
+            return "Split the line on '" + context.searchString + "'";
+          } else {
+            return (value as string).split(context.searchString);
+          }
+        }
+        else {
           var defaultDelimiter = context.isTabDelimited ? "\t" : ",";
           para = para === "\\t" ? "\t" : para;
           var delimiter = para || defaultDelimiter;
+          
           if (explain) {
             var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
             return "Split the line on every " + formattedDelimiter;
           } else {
             return (value as string).split(new RegExp(delimiter));
+          }
+        }
+      }).bind(this)
+    },
+    {
+      name: "match|filter",
+      desc: "Filters the input to only rows which match",
+      para: [
+        {
+          name: "Regex",
+          desc: "Specifies the pattern which rows must match"
+        }
+      ],
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+
+        var regex = para || context.regex;
+
+        if (!regex && context.searchString) {
+          if (explain) {
+            return "Only include lines containing '" + context.searchString + "'";
+          } else {
+            if (isArray(value)) {
+              return (value as string[]).filter(function (val: string) { return val.includes(context.searchString); });
+            } else {
+              return (value as string).includes(context.searchString) ? value : null;
+            }
+          }
+        }
+        else
+        {
+          if (explain) {
+            return "Only include lines matching the regex " + regex;
+          } else {
+            if (isArray(value)) {
+              return (value as string[]).filter(function (val: string) { return new RegExp(regex).test(val); });
+            } else {
+              return new RegExp(regex).test(value as string) ? value : null;
+            }
           }
         }
       }).bind(this)

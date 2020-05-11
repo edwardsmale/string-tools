@@ -23,7 +23,8 @@ export class CommandService {
 
     var context = {
       isTabDelimited: this.textUtilsService.IsTabDelimited(lines),
-      regex: (null as string)
+      regex: (null as string),
+      searchString: (null as string)
     };
 
     var currentValues: (string | string[])[] = lines;
@@ -44,7 +45,9 @@ export class CommandService {
           explain
         );
 
-        newValues.push(newLineValue);
+        if (newLineValue !== null) {
+          newValues.push(newLineValue);
+        }
       }
 
       currentValues = newValues;
