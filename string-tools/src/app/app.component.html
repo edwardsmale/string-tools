@@ -4,11 +4,12 @@
       <textarea class="code-window" #codePane 
         (input)="UpdateExplanation(codePane.value, inputPane.value);ProcessClick(codePane.value, inputPane.value);">
 split ,
-at 1
-flat
+at 1, 2
 csv '
-enclose</textarea
-      >
+enclose
+flat
+csv
+print INSERT INTO Account (AccountRef, Company) VALUES $0</textarea>
       <textarea class="explain-window" readonly>{{ explain }}</textarea>
     </div>
     <div class="panes-container">

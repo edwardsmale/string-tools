@@ -350,7 +350,7 @@ export class CommandTypesService {
             var i: number;
             for (i = 0; i < value.length; i++) {
               var val = value[i];
-              if (options.isDoubleQuote || val.includes(options.delimiter)) {
+              if (options.isDoubleQuote) { // || val.includes(options.delimiter)) {
                 if (options.isEscaped) {
                   // Replace " with \"
                   val = val.replace(new RegExp('"'), '\\"');
@@ -409,38 +409,40 @@ export class CommandTypesService {
         } else {
           var result = para;
           var i: number;
-          if (isArray(value)) {
-            // Replace $1..$9 with the value at index 1..9.
-            for (i = 0; i <= 9; i++) {
-              if (i < value.length) {
-                result = result.replace(new RegExp("\\$" + i, "g"), value[i]);
-              }
+          var arrayValue = isArray(value) ? value : [ "", value ];
+          
+          // Replace $0 with the whole value.
+          result = result.replace(new RegExp("\\$0", "g"), arrayValue.join(""));
+          
+          // Replace $1..$9 with the value at index 1..9.
+          for (i = 1; i <= 9; i++) {
+            if (i <= arrayValue.length) {
+              result = result.replace(new RegExp("\\$" + i, "g"), arrayValue[i - 1]);
             }
-            // Replace $-1..$-9 with the value -1..-9 from the end.
-            for (i = 1; i <= 9; i++) {
-              if (value.length - i >= 0) {
-                result = result.replace(
-                  new RegExp("\\$-" + i, "g"),
-                  value[value.length - i]
-                );
-              }
+          }
+          // Replace $-1..$-9 with the value -1..-9 from the end.
+          for (i = 1; i <= 9; i++) {
+            if (arrayValue.length - i >= 0) {
+              result = result.replace(
+                new RegExp("\\$-" + i, "g"),
+                arrayValue[arrayValue.length - i]
+              );
             }
-            // Replace $A..$Z and $a..$z with the value at index 10..35.
-            for (i = 0; i < 26; i++) {
-              if (i + 10 < value.length) {
-                result = result.replace(
-                  new RegExp(
-                    "\\$[" +
-                      String.fromCharCode(i + 65) +
-                      String.fromCharCode(i + 97) +
-                      "]",
-                    "g"
-                  ),
-                  value[i + 10]
-                );
-              }
+          }
+          // Replace $A..$Z and $a..$z with the value at index 10..35.
+          for (i = 0; i < 26; i++) {
+            if (i + 10 < arrayValue.length) {
+              result = result.replace(
+                new RegExp(
+                  "\\$[" +
+                    String.fromCharCode(i + 65) +
+                    String.fromCharCode(i + 97) +
+                    "]",
+                  "g"
+                ),
+                arrayValue[i + 10]
+              );
             }
-          } else {
           }
           return result;
         }
