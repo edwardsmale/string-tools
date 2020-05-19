@@ -21,10 +21,6 @@ export class CommandParsingService {
       var codeLineSplit = codeLine.split(/\s+/);
       var commandName = codeLineSplit[0];
       var commandType = this.commandTypesService.FindCommandType(commandName);
-      if (commandType === null) {
-        commandName = "print";
-        commandType = this.commandTypesService.FindCommandType(commandName);
-      }
       var para = codeLine.replace(commandName, "").trim();
       return {
         commandType: commandType,
