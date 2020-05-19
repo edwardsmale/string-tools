@@ -237,7 +237,7 @@ export class CommandTypesService {
       para: [],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         if (explain) {
-          return "Flatten the array of arrays into one array";
+          return "Flatten an array of arrays into one array";
         } else {
           return value;
         }
@@ -263,7 +263,7 @@ export class CommandTypesService {
         }
 
         if (explain) {
-          return "Enclose each line as in " + leftChar + ". . ." + rightChar;
+          return "Enclose each item in " + leftChar + "  " + rightChar;
         } else {
           var scalarValue = this.textUtilsService.AsScalar(value);
           return leftChar + scalarValue + rightChar;
