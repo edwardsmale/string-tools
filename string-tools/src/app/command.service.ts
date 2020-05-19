@@ -25,7 +25,8 @@ export class CommandService {
     var context = {
       isTabDelimited: this.textUtilsService.IsTabDelimited(lines),
       regex: (null as string),
-      searchString: (null as string)
+      searchString: (null as string),
+      isColumnNumeric: (null as boolean[])
     };
 
     var currentValues: (string | string[])[] = lines;
@@ -57,6 +58,10 @@ export class CommandService {
 
         newValues[0] = flattened;
       } else {
+
+        if (parsedCommand.commandType.name === "split") {
+          context.isColumnNumeric = [];
+        }
 
         for (j = 0; j < currentValues.length; j++) {
           

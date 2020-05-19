@@ -16,6 +16,10 @@ export class TextUtilsService {
     return text.trim().split(/\n/);
   }
 
+  IsNumeric(value) {
+    return /^-{0,1}\d+$/.test(value);
+  }
+
   AsArray(value : string | string[]): string[] {
     if (isArray(value)) {
       return (value as string[]);

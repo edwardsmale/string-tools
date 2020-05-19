@@ -71,6 +71,7 @@ export class CommandTypesService {
       ],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         value = this.textUtilsService.AsScalar(value);
+        var i: number;
 
         if (!para && context.regex) {
           if (explain) {
@@ -95,7 +96,20 @@ export class CommandTypesService {
             var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
             return "Split the line on every " + formattedDelimiter;
           } else {
-            return (value as string).split(new RegExp(delimiter));
+
+            var splitValues = (value as string).split(new RegExp(delimiter));
+
+            for (i = 0; i < splitValues.length; i++) {
+              if (context.isColumnNumeric.length <= i) {
+                context.isColumnNumeric[i] = true;
+              }
+              
+              if (!this.textUtilsService.IsNumeric(splitValues[i])) {
+                context.isColumnNumeric[i] = false;
+              }
+            }
+
+            return splitValues;
           }
         }
       }).bind(this)
