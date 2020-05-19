@@ -218,6 +218,45 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
+      name: "flat",
+      desc: "Flattens an array of arrays into one array",
+      para: [],
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        if (explain) {
+          return "Flatten the array of arrays into one array";
+        } else {
+          return value;
+        }
+      }).bind(this)
+    },
+    {
+      name: "enclose",
+      desc: "Put some character(s) at the start and end of each line",
+      para: [],
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        var leftChar: string;
+        var rightChar: string;
+
+        if (para.length === 0) {
+          leftChar = "(";
+          rightChar = ")";
+        } else if (para.length === 1) {
+          leftChar = para[0];
+          rightChar = para[0];
+        } else {
+          leftChar = para[0];
+          rightChar = para[1];          
+        }
+
+        if (explain) {
+          return "Enclose each line as in " + leftChar + ". . ." + rightChar;
+        } else {
+          var scalarValue = this.textUtilsService.AsScalar(value);
+          return leftChar + scalarValue + rightChar;
+        }
+      }).bind(this)
+    },
+    {
       name: "tsv",
       desc: "Tab-separates text that has been split.",
       para: [],

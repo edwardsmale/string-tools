@@ -20,6 +20,7 @@ export class CommandService {
     var lines = this.textUtilsService.TextToLines(inputValue);
     var i: number;
     var j: number;
+    var k: number;
 
     var context = {
       isTabDelimited: this.textUtilsService.IsTabDelimited(lines),
@@ -37,16 +38,39 @@ export class CommandService {
 
       var newValues: (string | string[])[] = [];
 
-      for (j = 0; j < currentValues.length; j++) {
-        const newLineValue = parsedCommand.commandType.exec(
-          currentValues[j], 
-          parsedCommand.para, 
-          context,
-          explain
-        );
+      if (parsedCommand.commandType.name === "flat") {
 
-        if (newLineValue !== null) {
-          newValues.push(newLineValue);
+        var flattened = [];
+
+        for (j = 0; j < currentValues.length; j++) {
+
+          if (isArray(currentValues[j])) {
+
+            for (k = 0; k < (currentValues[j] as string[]).length; k++) {
+              flattened.push(currentValues[j][k]);
+            }
+
+          } else {
+            flattened.push(currentValues[j])
+          }
+        }
+
+        newValues[0] = flattened;
+      } else {
+
+        for (j = 0; j < currentValues.length; j++) {
+          
+            const newLineValue = parsedCommand.commandType.exec(
+              currentValues[j], 
+              parsedCommand.para, 
+              context,
+              explain
+            );
+
+            if (newLineValue !== null) {
+              newValues.push(newLineValue);
+            
+          }
         }
       }
 
