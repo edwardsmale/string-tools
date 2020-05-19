@@ -105,34 +105,34 @@ export class CommandTypesService {
       desc: "Only lines which match a regex or search string",
       para: [
         {
-          name: "Regex",
-          desc: "The regex which lines must match"
+          name: "Search String",
+          desc: "The string which lines must contain"
         }
       ],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
 
-        var regex = para || context.regex;
+        var searchString = para || context.searchString;
 
-        if (!regex && context.searchString) {
+        if (!searchString && context.regex) {          
           if (explain) {
-            return "Only include lines containing '" + context.searchString + "'";
+            return "Only include lines matching the regex " + context.regex;
           } else {
             if (isArray(value)) {
-              return (value as string[]).filter(function (val: string) { return val.includes(context.searchString); });
+              return (value as string[]).filter(function (val: string) { return new RegExp(context.regex).test(val); });
             } else {
-              return (value as string).includes(context.searchString) ? value : null;
+              return new RegExp(context.regex).test(value as string) ? value : null;
             }
           }
         }
         else
         {
           if (explain) {
-            return "Only include lines matching the regex " + regex;
+            return "Only include lines containing '" + searchString + "'";
           } else {
             if (isArray(value)) {
-              return (value as string[]).filter(function (val: string) { return new RegExp(regex).test(val); });
+              return (value as string[]).filter(function (val: string) { return val.includes(searchString); });
             } else {
-              return new RegExp(regex).test(value as string) ? value : null;
+              return (value as string).includes(searchString) ? value : null;
             }
           }
         }
