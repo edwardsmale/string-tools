@@ -423,7 +423,7 @@ export class CommandTypesService {
         } else {
           var result = para;
           var i: number;
-          var arrayValue = isArray(value) ? value : [ "", value ];
+          var arrayValue = isArray(value) ? (value as string[]) : ([ "", value ] as string[]);
           
           // Replace $0 with the whole value.
           result = result.replace(new RegExp("\\$0", "g"), arrayValue.join(""));
