@@ -39,24 +39,60 @@ export class CommandService {
 
       var newValues: (string | string[])[] = [];
 
-      if (parsedCommand.commandType.name === "flat") {
+      if (parsedCommand.commandType.name === "flat|batch") {
 
-        var flattened = [];
+        if (!parsedCommand.para || !this.textUtilsService.IsPositiveInteger(parsedCommand.para)) {
+          var flattened = [];
 
-        for (j = 0; j < currentValues.length; j++) {
+          for (j = 0; j < currentValues.length; j++) {
 
-          if (isArray(currentValues[j])) {
+            if (isArray(currentValues[j])) {
 
-            for (k = 0; k < (currentValues[j] as string[]).length; k++) {
-              flattened.push(currentValues[j][k]);
+              for (k = 0; k < (currentValues[j] as string[]).length; k++) {
+                flattened.push(currentValues[j][k]);
+              }
+
+            } else {
+              flattened.push(currentValues[j]);
             }
-
-          } else {
-            flattened.push(currentValues[j])
           }
-        }
 
-        newValues[0] = flattened;
+          newValues[0] = flattened;
+        } else {
+          var batchSize = parseInt(parsedCommand.para, 10);
+          var batches = [];
+          
+          var flattened = [];
+
+          for (j = 0; j < currentValues.length; j++) {
+
+            if (isArray(currentValues[j])) {
+
+              for (k = 0; k < (currentValues[j] as string[]).length; k++) {
+                flattened.push(currentValues[j][k]);
+
+                if (flattened.length === batchSize) {
+                  batches.push(flattened);
+                  flattened = [];
+                }
+              }
+
+            } else {
+              flattened.push(currentValues[j]);
+
+              if (flattened.length === batchSize) {
+                batches.push(flattened);
+                flattened = [];
+              }
+            }
+          }
+          
+          if (flattened.length) {
+            batches.push(flattened);
+          }
+
+          newValues = batches;
+        }
       } else {
 
         if (parsedCommand.commandType.name === "split") {
@@ -74,7 +110,6 @@ export class CommandService {
 
             if (newLineValue !== null) {
               newValues.push(newLineValue);
-            
           }
         }
       }

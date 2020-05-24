@@ -232,12 +232,19 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
-      name: "flat",
-      desc: "Flattens an array of arrays into one array",
-      para: [],
+      name: "flat|batch",
+      desc: "Flattens an array of arrays into one array, or batches items into arrays of a given size",
+      para: [        {
+        name: "Batch Size",
+        desc: "If set, converts into batches of this size"
+      }],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         if (explain) {
-          return "Flatten an array of arrays into one array";
+          if (this.textUtilsService.IsNumeric(para)) {
+            return "Convert into arrays of " + para + " items";
+          } else {
+            return "Flatten an array of arrays into one array";
+          }
         } else {
           return value;
         }
