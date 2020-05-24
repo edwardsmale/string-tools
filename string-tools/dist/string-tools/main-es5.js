@@ -692,12 +692,19 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
         }.bind(this)
       }, {
-        name: "flat",
-        desc: "Flattens an array of arrays into one array",
-        para: [],
+        name: "flat|batch",
+        desc: "Flattens an array of arrays into one array, or batches items into arrays of a given size",
+        para: [{
+          name: "Batch Size",
+          desc: "If set, converts into batches of this size"
+        }],
         exec: function (value, para, context, explain) {
           if (explain) {
-            return "Flatten an array of arrays into one array";
+            if (this.textUtilsService.IsNumeric(para)) {
+              return "Convert into arrays of " + para + " items";
+            } else {
+              return "Flatten an array of arrays into one array";
+            }
           } else {
             return value;
           }
@@ -1014,20 +1021,52 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             var parsedCommand = this.commandParsingService.ParseCodeLine(codeLines[i]);
             var newValues = [];
 
-            if (parsedCommand.commandType.name === "flat") {
-              var flattened = [];
+            if (parsedCommand.commandType.name === "flat|batch") {
+              if (!parsedCommand.para || !this.textUtilsService.IsPositiveInteger(parsedCommand.para)) {
+                var flattened = [];
 
-              for (j = 0; j < currentValues.length; j++) {
-                if (Object(util__WEBPACK_IMPORTED_MODULE_1__["isArray"])(currentValues[j])) {
-                  for (k = 0; k < currentValues[j].length; k++) {
-                    flattened.push(currentValues[j][k]);
+                for (j = 0; j < currentValues.length; j++) {
+                  if (Object(util__WEBPACK_IMPORTED_MODULE_1__["isArray"])(currentValues[j])) {
+                    for (k = 0; k < currentValues[j].length; k++) {
+                      flattened.push(currentValues[j][k]);
+                    }
+                  } else {
+                    flattened.push(currentValues[j]);
                   }
-                } else {
-                  flattened.push(currentValues[j]);
                 }
-              }
 
-              newValues[0] = flattened;
+                newValues[0] = flattened;
+              } else {
+                var batchSize = parseInt(parsedCommand.para, 10);
+                var batches = [];
+                var flattened = [];
+
+                for (j = 0; j < currentValues.length; j++) {
+                  if (Object(util__WEBPACK_IMPORTED_MODULE_1__["isArray"])(currentValues[j])) {
+                    for (k = 0; k < currentValues[j].length; k++) {
+                      flattened.push(currentValues[j][k]);
+
+                      if (flattened.length === batchSize) {
+                        batches.push(flattened);
+                        flattened = [];
+                      }
+                    }
+                  } else {
+                    flattened.push(currentValues[j]);
+
+                    if (flattened.length === batchSize) {
+                      batches.push(flattened);
+                      flattened = [];
+                    }
+                  }
+                }
+
+                if (flattened.length) {
+                  batches.push(flattened);
+                }
+
+                newValues = batches;
+              }
             } else {
               if (parsedCommand.commandType.name === "split") {
                 context.isColumnNumeric = [];
@@ -1216,6 +1255,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         key: "IsNumeric",
         value: function IsNumeric(value) {
           return /^-{0,1}\d+$/.test(value);
+        }
+      }, {
+        key: "IsPositiveInteger",
+        value: function IsPositiveInteger(value) {
+          return /^[1-9]\d*$/.test(value);
         }
       }, {
         key: "AsArray",
