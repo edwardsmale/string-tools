@@ -20,6 +20,10 @@ export class TextUtilsService {
     return /^-{0,1}\d+$/.test(value);
   }
 
+  IsPositiveInteger(value) {
+    return /^[1-9]\d*$/.test(value);
+  }
+
   AsArray(value : string | string[]): string[] {
     if (isArray(value)) {
       return (value as string[]);
