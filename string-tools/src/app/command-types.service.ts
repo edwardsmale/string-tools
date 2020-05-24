@@ -360,6 +360,12 @@ export class CommandTypesService {
           }
           else if (options.isSingleQuote) {
             explanation += ", with values in single quotes"
+  
+            if (options.isEscaped) {
+              explanation += ", backslash-escaping any quotes";
+            } else {
+              explanation += ", doubling-up any quotes";
+            }
           }
   
           return explanation;
@@ -374,19 +380,26 @@ export class CommandTypesService {
               if (options.isDoubleQuote) { // || val.includes(options.delimiter)) {
                 if (options.isEscaped) {
                   // Replace " with \"
-                  val = val.replace(new RegExp('"'), '\\"');
+                  val = val.replace(/"/g, '\\"');
                   val = '"' + val + '"';
                 } else {
                   // Replace " with ""
-                  val = val.replace(new RegExp('"'), '""');
+                  val = val.replace(/"/g, '""');
                   val = '"' + val + '"';
                   if (options.isAtString) {
                     val = "@" + val;
                   }
                 }
               } else if (options.isSingleQuote) {
-                val = val.replace(new RegExp("'"), "''");
-                val = "'" + val + "'";
+                if (options.isEscaped) {
+                   // Replace ' with \'
+                  val = val.replace(/'/g, "\\'");
+                  val = "'" + val + "'";
+                } else {
+                  // Replace ' with ''
+                  val = val.replace(/'/g, "''");
+                  val = "'" + val + "'";
+                }
               }
               result.push(val);
             }
