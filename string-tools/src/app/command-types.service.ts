@@ -252,7 +252,7 @@ export class CommandTypesService {
     },
     {
       name: "enclose",
-      desc: "Put some character(s) at the start and end of each line",
+      desc: "Put some character(s) at the start and end of each item",
       para: [],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         var leftChar: string;
