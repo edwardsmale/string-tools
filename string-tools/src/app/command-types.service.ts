@@ -93,9 +93,13 @@ export class CommandTypesService {
           var delimiter = para || defaultDelimiter;
           
           if (explain) {
-            var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);        
+            var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);
             return "Split the line on every " + formattedDelimiter;
           } else {
+
+            if (delimiter.length === 1 && "|^$*()\\/[].+".includes(delimiter)) {
+              delimiter = "\\" + delimiter;
+            }
 
             var splitValues = (value as string).split(new RegExp(delimiter));
 

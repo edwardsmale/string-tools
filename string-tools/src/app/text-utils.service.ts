@@ -78,8 +78,11 @@ export class TextUtilsService {
       else if (delimiter === ",") {
         return "comma";
       }
+      else if (delimiter.length === 1) {
+        return delimiter + " character";
+      }
       else {
-        return "'" + delimiter + "' character";
+        return "match of the regex " + delimiter;
       }
     };
 
