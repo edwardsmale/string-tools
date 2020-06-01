@@ -115,6 +115,42 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
+      name: "skip",
+      desc: "Skips the first N items",
+      para: [
+        {
+          name: "N",
+          desc: "How many items to skip"
+        }
+      ],
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        var n = parseInt(para, 10);
+        if (explain) {
+          return "Skip " + n + " item" + (n === 1 ? "" : "s");
+        } else {
+          return this.textUtilsService.AsArray(value).slice(n);
+        }       
+      }).bind(this)
+    },
+    {
+      name: "take",
+      desc: "Takes the first N items and ignores the rest",
+      para: [
+        {
+          name: "N",
+          desc: "How many items to take"
+        }
+      ],
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        var n = parseInt(para, 10);
+        if (explain) {
+          return "Take " + n + " item" + (n === 1 ? "" : "s");
+        } else {
+          return this.textUtilsService.AsArray(value).slice(0, n);
+        }       
+      }).bind(this)
+    },
+    {
       name: "match|filter",
       desc: "Only lines which match a regex or search string",
       para: [

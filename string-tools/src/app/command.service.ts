@@ -38,7 +38,6 @@ export class CommandService {
       );
 
       var newValues: (string | string[])[] = [];
-
       if (parsedCommand.commandType.name === "flat|batch") {
 
         if (!parsedCommand.para || !this.textUtilsService.IsPositiveInteger(parsedCommand.para)) {
@@ -94,6 +93,8 @@ export class CommandService {
           newValues = batches;
         }
       } else {
+
+        // Not flat|batch command.
 
         if (parsedCommand.commandType.name === "split") {
           context.isColumnNumeric = [];
