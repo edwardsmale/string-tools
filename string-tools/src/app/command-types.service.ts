@@ -130,9 +130,28 @@ export class CommandTypesService {
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         var n = parseInt(para, 10);
         if (explain) {
-          return "Skip " + n + " item" + (n === 1 ? "" : "s");
+          if (isNaN(n)) {
+            return "Skip n items";
+          } else {
+            return "Skip " + n + " item" + (n === 1 ? "" : "s");
+          }
         } else {
-          return this.textUtilsService.AsArray(value).slice(n);
+          if (isNaN(n)) {
+            return value;
+          }
+          else if (Array.isArray(value)) {
+            if (n >= 0) {
+              return (value as string[]).slice(n);
+            } else {
+              return (value as string[]).slice(0, -n);
+            }
+          } else {
+            if (n >= 0) {
+              return context.currentIndex >= n ? value : null;
+            } else {
+              return context.currentIndex < -n ? value : null;
+            }
+          }
         }       
       }).bind(this)
     },
@@ -148,10 +167,29 @@ export class CommandTypesService {
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         var n = parseInt(para, 10);
         if (explain) {
-          return "Take " + n + " item" + (n === 1 ? "" : "s");
+          if (isNaN(n)) {
+            return "Take the first n items and ignore the rest";
+          } else {
+            return "Take the first " + n + " item" + (n === 1 ? "" : "s") + " only";
+          }
         } else {
-          return this.textUtilsService.AsArray(value).slice(0, n);
-        }       
+          if (isNaN(n)) {
+            return value;
+          }
+          else if (Array.isArray(value)) {
+            if (n >= 0) {
+              return (value as string[]).slice(0, n);
+            } else {
+              return (value as string[]).slice(-n);
+            }
+          } else {
+            if (n >= 0) {
+              return context.currentIndex < n ? value : null;
+            } else {
+              return context.currentIndex >= -n ? value : null;
+            }
+          }
+        }          
       }).bind(this)
     },
     {
