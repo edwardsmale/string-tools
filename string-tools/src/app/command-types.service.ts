@@ -193,6 +193,47 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
+      name: "at",
+      desc: "Selects specified columns from text that has been split.",
+      para: [
+        {
+          name: "Column Indices",
+          desc: "Zero-based. Use negatives to count back from the end."
+        }
+      ],
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        if (explain) {
+          const indices = this.textUtilsService.ParseIntegers(para);
+          var positions: string[] = [];
+  
+          for (var i = 0; i < indices.length; i++) {
+            if (indices[i] >= 0) {
+              positions.push("[" + indices[i].toString() + "]");
+            } else {
+              positions.push("[" + Math.abs(indices[i]) + " from the end" + "]");
+            }
+          }
+          return "Get the items at positions " + positions.join(" ");
+        } else {
+          value = this.textUtilsService.AsArray(value);
+          const indices = para.trim().split(/[^\d\-]+/);
+          var result = [];
+          var i: number;
+          for (i = 0; i < indices.length; i++) {
+            var index = parseInt(indices[i], 10);
+            if (index < 0) {
+              index = value.length + index;
+            }
+            if (index >= 0 && index < value.length) {
+              result.push(value[index]);
+            }
+          }
+
+          return result;
+        }
+      }).bind(this)
+    },
+    {
       name: "match|filter",
       desc: "Only lines which match a regex or search string",
       para: [
@@ -265,47 +306,6 @@ export class CommandTypesService {
               return new RegExp(regex).test(value as string) ? null : value;
             }
           }
-        }
-      }).bind(this)
-    },
-    {
-      name: "at",
-      desc: "Selects specified columns from text that has been split.",
-      para: [
-        {
-          name: "Column Indices",
-          desc: "Zero-based. Use negatives to count back from the end."
-        }
-      ],
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
-        if (explain) {
-          const indices = this.textUtilsService.ParseIntegers(para);
-          var positions: string[] = [];
-  
-          for (var i = 0; i < indices.length; i++) {
-            if (indices[i] >= 0) {
-              positions.push("[" + indices[i].toString() + "]");
-            } else {
-              positions.push("[" + Math.abs(indices[i]) + " from the end" + "]");
-            }
-          }
-          return "Get the items at positions " + positions.join(" ");
-        } else {
-          value = this.textUtilsService.AsArray(value);
-          const indices = para.trim().split(/[^\d\-]+/);
-          var result = [];
-          var i: number;
-          for (i = 0; i < indices.length; i++) {
-            var index = parseInt(indices[i], 10);
-            if (index < 0) {
-              index = value.length + index;
-            }
-            if (index >= 0 && index < value.length) {
-              result.push(value[index]);
-            }
-          }
-
-          return result;
         }
       }).bind(this)
     },
