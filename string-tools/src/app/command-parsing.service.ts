@@ -16,7 +16,10 @@ export class CommandParsingService {
   ParseCodeLine(codeLine: string) {
     var codeLine = codeLine.trim();
     if (codeLine.length === 0) {
-      return undefined;
+      return {
+        commandType: this.commandTypesService.FindCommandType("noop"),
+        para: []
+      };
     } else {
       var codeLineSplit = codeLine.split(/\s+/);
       var commandName = codeLineSplit[0];

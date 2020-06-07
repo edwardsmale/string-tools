@@ -23,6 +23,19 @@ export class CommandTypesService {
 
   CommandTypes = [
     {
+      name: "noop",
+      desc: "Does nothing",
+      para: [],
+      isArrayBased: false,
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        if (explain) {
+          return "";
+        } else {
+          return value;
+        }
+      }).bind(this)
+    },
+    {
       name: "regex",
       desc: "Sets the current regex",
       para: [

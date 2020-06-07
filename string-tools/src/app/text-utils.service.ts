@@ -13,7 +13,7 @@ export class TextUtilsService {
   }
 
   TextToLines(text : string): string[] {
-    return text.trim().split(/\n/);
+    return text.split(/\n/);
   }
 
   IsNumeric(value) {
