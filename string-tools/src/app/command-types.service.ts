@@ -76,6 +76,36 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
+      name: "replace",
+      desc: "Replaces text that matches the current regex or search string",
+      para: [
+        {
+          name: "Replacement text",
+          desc: "The text to replace the matching text with"
+        }
+      ],
+      isArrayBased: false,
+      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        if (explain) {
+          if (context.regex) {
+            return "Replaces text matching the regex '" + context.regex + "' with '" + para + "'";
+          } else if (context.searchString) {
+            return "Replaces '" + context.searchString + "' with '" + para + "'";
+          } else {
+            return "*** This command only works if a regex or search string has been set by an earlier 'regex' or 'search' instruction."
+          }
+        } else {
+          if (context.regex) {
+            return this.textUtilsService.GlobalRegexReplace(value as string, context.regex, para);
+          } else if (context.searchString) {
+            return this.textUtilsService.GlobalStringReplace(value as string, context.searchString, para);
+          } else {
+            return value;
+          }
+        }
+      }).bind(this)
+    },
+    {
       name: "split",
       desc: "Splits up text.",
       para: [
