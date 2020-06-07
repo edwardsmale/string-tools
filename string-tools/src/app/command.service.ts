@@ -18,13 +18,8 @@ export class CommandService {
   processCommands(codeValue: string, inputValue: string, explain: boolean): string[] {
     var codeLines = this.textUtilsService.TextToLines(codeValue);
     var lines = this.textUtilsService.TextToLines(inputValue);
-    var i: number;
-    var j: number;
-    var k: number;
 
     var context = {
-      currentIndex: 0,
-      valuesLength: 0,
       isTabDelimited: this.textUtilsService.IsTabDelimited(lines),
       regex: (null as string),
       searchString: (null as string),
@@ -33,7 +28,7 @@ export class CommandService {
 
     var currentValues: (string | string[])[] = lines;
 
-    for (i = 0; i < codeLines.length; i++) {
+    for (let i = 0; i < codeLines.length; i++) {
 
       var parsedCommand = this.commandParsingService.ParseCodeLine(
         codeLines[i]
@@ -45,11 +40,11 @@ export class CommandService {
         if (!parsedCommand.para || !this.textUtilsService.IsPositiveInteger(parsedCommand.para)) {
           var flattened = [];
 
-          for (j = 0; j < currentValues.length; j++) {
+          for (let j = 0; j < currentValues.length; j++) {
 
             if (isArray(currentValues[j])) {
 
-              for (k = 0; k < (currentValues[j] as string[]).length; k++) {
+              for (let k = 0; k < (currentValues[j] as string[]).length; k++) {
                 flattened.push(currentValues[j][k]);
               }
 
@@ -65,11 +60,11 @@ export class CommandService {
           
           var flattened = [];
 
-          for (j = 0; j < currentValues.length; j++) {
+          for (let j = 0; j < currentValues.length; j++) {
 
             if (isArray(currentValues[j])) {
 
-              for (k = 0; k < (currentValues[j] as string[]).length; k++) {
+              for (let k = 0; k < (currentValues[j] as string[]).length; k++) {
                 flattened.push(currentValues[j][k]);
 
                 if (flattened.length === batchSize) {
@@ -104,12 +99,23 @@ export class CommandService {
 
         // Iterate through the lines and apply the command.
 
-        context.valuesLength = currentValues.length;
+        if (parsedCommand.commandType.isArrayBased && !Array.isArray(currentValues[0])) {
 
-        for (j = 0; j < currentValues.length; j++) {
+          const newLineValue = parsedCommand.commandType.exec(
+            currentValues, 
+            parsedCommand.para, 
+            context,
+            explain
+          );
+
+          if (newLineValue !== null) {
+            newValues = newLineValue;
+          }
           
-            context.currentIndex = j;
+        } else {
 
+          for (let j = 0; j < currentValues.length; j++) {
+          
             const newLineValue = parsedCommand.commandType.exec(
               currentValues[j], 
               parsedCommand.para, 
@@ -119,7 +125,8 @@ export class CommandService {
 
             if (newLineValue !== null) {
               newValues.push(newLineValue);
-          }
+            }
+          }        
         }
       }
 
@@ -129,7 +136,7 @@ export class CommandService {
     var outputLines: string[] = [];
 
     if (explain) {
-      for (i = 0; i < codeLines.length; i++) {
+      for (let i = 0; i < codeLines.length; i++) {
         var parsedCommand = this.commandParsingService.ParseCodeLine(codeLines[i]);
         var commandType = parsedCommand.commandType;
         var para = parsedCommand.para;
@@ -140,11 +147,11 @@ export class CommandService {
       return outputLines;
     } else {
 
-      for (i = 0; i < currentValues.length; i++) {
+      for (let i = 0; i < currentValues.length; i++) {
         var value = currentValues[i];
         if (isArray(value)) {
           var arrayValue = value as string[];
-          for (j = 0; j < arrayValue.length; j++) {
+          for (let j = 0; j < arrayValue.length; j++) {
             outputLines.push(arrayValue[j]);
           }
         } else {

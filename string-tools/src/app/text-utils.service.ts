@@ -50,7 +50,7 @@ export class TextUtilsService {
   };
   
   IsTabDelimited = function(lines: string[]) {
-    var i: number;
+
     var countTabs = function(line: string) {
       return (line.match(/\t/g) || []).length;
     };
@@ -58,7 +58,7 @@ export class TextUtilsService {
     if (tabsPerLine === 0) {
       return false;
     }
-    for (i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
       if (countTabs(lines[i]) !== tabsPerLine) {
         return false;
       }

@@ -12,8 +12,8 @@ export class CommandTypesService {
   }
 
   FindCommandType = function(name: string) {
-    var i: number;
-    for (i = 0; i < this.CommandTypes.length; i++) {
+    
+    for (let i = 0; i < this.CommandTypes.length; i++) {
       if (new RegExp("^" + this.CommandTypes[i].name).test(name)) {
         return this.CommandTypes[i];
       }
@@ -31,6 +31,7 @@ export class CommandTypesService {
           desc: "String defining the regex"
         }
       ],
+      isArrayBased: false,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         context.regex = this.textUtilsService.AsScalar(para);
         context.searchString = null;
@@ -50,6 +51,7 @@ export class CommandTypesService {
           desc: "The search string to set"
         }
       ],
+      isArrayBased: false,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         context.searchString = this.textUtilsService.AsScalar(para);
         context.regex = null;
@@ -62,27 +64,27 @@ export class CommandTypesService {
     },
     {
       name: "split",
-      desc: "Splits up the line of text.",
+      desc: "Splits up text.",
       para: [
         {
           name: "Separator",
           desc: "The string upon which to split."
         }
       ],
+      isArrayBased: false,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         value = this.textUtilsService.AsScalar(value);
-        var i: number;
 
         if (!para && context.regex) {
           if (explain) {
-            return "Split the line using the regex " + context.regex;
+            return "Split the text using the regex " + context.regex;
           } else {
             return (value as string).split(new RegExp(context.regex));
           }
         }
         else if (!para && context.searchString) {
           if (explain) {
-            return "Split the line on '" + context.searchString + "'";
+            return "Split the text on '" + context.searchString + "'";
           } else {
             return (value as string).split(context.searchString);
           }
@@ -94,7 +96,7 @@ export class CommandTypesService {
           
           if (explain) {
             var formattedDelimiter = this.textUtilsService.FormatDelimiter(delimiter, false);
-            return "Split the line on every " + formattedDelimiter;
+            return "Split the text on every " + formattedDelimiter;
           } else {
 
             if (delimiter.length === 1 && "|^$*()\\/[].+".includes(delimiter)) {
@@ -103,7 +105,7 @@ export class CommandTypesService {
 
             var splitValues = (value as string).split(new RegExp(delimiter));
 
-            for (i = 0; i < splitValues.length; i++) {
+            for (let i = 0; i < splitValues.length; i++) {
               if (context.isColumnNumeric.length <= i) {
                 context.isColumnNumeric[i] = true;
               }
@@ -127,6 +129,7 @@ export class CommandTypesService {
           desc: "How many items to skip"
         }
       ],
+      isArrayBased: true,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         var n = parseInt(para, 10);
         if (explain) {
@@ -139,17 +142,11 @@ export class CommandTypesService {
           if (isNaN(n)) {
             return value;
           }
-          else if (Array.isArray(value)) {
+          else {
             if (n >= 0) {
               return (value as string[]).slice(n);
             } else {
               return (value as string[]).slice(0, -n);
-            }
-          } else {
-            if (n >= 0) {
-              return context.currentIndex >= n ? value : null;
-            } else {
-              return context.currentIndex < -n ? value : null;
             }
           }
         }       
@@ -164,6 +161,7 @@ export class CommandTypesService {
           desc: "How many items to take"
         }
       ],
+      isArrayBased: true,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         var n = parseInt(para, 10);
         if (explain) {
@@ -176,17 +174,11 @@ export class CommandTypesService {
           if (isNaN(n)) {
             return value;
           }
-          else if (Array.isArray(value)) {
+          else{
             if (n >= 0) {
               return (value as string[]).slice(0, n);
             } else {
               return (value as string[]).slice(-n);
-            }
-          } else {
-            if (n >= 0) {
-              return context.currentIndex < n ? value : null;
-            } else {
-              return context.currentIndex >= -n ? value : null;
             }
           }
         }          
@@ -201,6 +193,7 @@ export class CommandTypesService {
           desc: "Zero-based. Nnegatives count back from the end."
         }
       ],
+      isArrayBased: true,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         
         const indices = this.textUtilsService.ParseIntegers(para);
@@ -218,61 +211,42 @@ export class CommandTypesService {
           return "Get the items at positions " + positions.join(" ");
         } else {
 
-          if (Array.isArray(value)) {
-            let result = [];
+          let result = [];
 
-            for (let i = 0; i < indices.length; i++) {
-              var index = indices[i];
+          for (let i = 0; i < indices.length; i++) {
+            var index = indices[i];
 
-              if (index < 0) {
-                index = value.length + index;
-              }
-
-              if (index >= 0 && index < value.length) {
-                result.push(value[index]);
-              }
-            }
-            
-            return result;
-
-          } else {
-
-            let included = false;
-
-            for (let i = 0; i < indices.length; i++) {
-
-              var index = indices[i];
-
-              if (index < 0) {
-                index = context.valuesLength + index;
-              }
-
-              if (index == context.currentIndex) {
-                included = true;
-              }
+            if (index < 0) {
+              index = value.length + index;
             }
 
-            return included ? value : null;
+            if (index >= 0 && index < value.length) {
+              result.push(value[index]);
+            }
           }
+
+          return result;
+
         }
       }).bind(this)
     },
     {
       name: "match|filter",
-      desc: "Only lines which match a regex or search string",
+      desc: "Only include items which match a regex or search string",
       para: [
         {
           name: "Search String",
-          desc: "The string which lines must contain"
+          desc: "The string which items must contain in order to be included"
         }
       ],
+      isArrayBased: true,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
 
         var searchString = para || context.searchString;
 
         if (!searchString && context.regex) {          
           if (explain) {
-            return "Only include lines matching the regex " + context.regex;
+            return "Only include items which match the regex " + context.regex;
           } else {
             if (isArray(value)) {
               return (value as string[]).filter(function (val: string) { return new RegExp(context.regex).test(val); });
@@ -284,51 +258,9 @@ export class CommandTypesService {
         else
         {
           if (explain) {
-            return "Only include lines containing '" + searchString + "'";
+            return "Only include items containing '" + searchString + "'";
           } else {
-            if (isArray(value)) {
-              return (value as string[]).filter(function (val: string) { return val.includes(searchString); });
-            } else {
-              return (value as string).includes(searchString) ? value : null;
-            }
-          }
-        }
-      }).bind(this)
-    },
-    {
-      name: "nomatch|exclude",
-      desc: "Exclude lines that match a regex or search string",
-      para: [
-        {
-          name: "Regex",
-          desc: "The regex that lines must not match"
-        }
-      ],
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
-
-        var regex = para || context.regex;
-
-        if (!regex && context.searchString) {
-          if (explain) {
-            return "Exclude lines containing '" + context.searchString + "'";
-          } else {
-            if (isArray(value)) {
-              return (value as string[]).filter(function (val: string) { return !val.includes(context.searchString); });
-            } else {
-              return (value as string).includes(context.searchString) ? null : value;
-            }
-          }
-        }
-        else
-        {
-          if (explain) {
-            return "Exclude lines matching the regex " + regex;
-          } else {
-            if (isArray(value)) {
-              return (value as string[]).filter(function (val: string) { return !new RegExp(regex).test(val); });
-            } else {
-              return new RegExp(regex).test(value as string) ? null : value;
-            }
+            return (value as string[]).filter(function (val: string) { return val.includes(searchString); });
           }
         }
       }).bind(this)
@@ -340,6 +272,7 @@ export class CommandTypesService {
         name: "Batch Size",
         desc: "If set, converts into batches of this size"
       }],
+      isArrayBased: true,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         if (explain) {
           if (this.textUtilsService.IsNumeric(para)) {
@@ -354,8 +287,9 @@ export class CommandTypesService {
     },
     {
       name: "enclose",
-      desc: "Put some character(s) at the start and end of each item",
+      desc: "Put character(s) at the start and end of each item",
       para: [],
+      isArrayBased: false,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         var leftChar: string;
         var rightChar: string;
@@ -383,6 +317,7 @@ export class CommandTypesService {
       name: "tsv",
       desc: "Tab-separates text that has been split.",
       para: [],
+      isArrayBased: false,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         if (explain) {
           return "Output the items in tab-separated format";
@@ -394,7 +329,7 @@ export class CommandTypesService {
     },
     {
       name: "csv",
-      desc: "Delimits text which has been split.",
+      desc: "Outputs the items in CSV format.",
       para: [
         {
           name: "'",
@@ -421,6 +356,7 @@ export class CommandTypesService {
           desc: "The character(s) to use as the delimiter."
         }
       ],
+      isArrayBased: false,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         value = this.textUtilsService.AsArray(value);
 
@@ -476,8 +412,8 @@ export class CommandTypesService {
 
           var toDelimitedString = function(value: string[], options) {
             var result = [];
-            var i: number;
-            for (i = 0; i < value.length; i++) {
+
+            for (let i = 0; i < value.length; i++) {
               var val = value[i];
               if (options.isDoubleQuote) { // || val.includes(options.delimiter)) {
                 if (options.isEscaped) {
@@ -521,6 +457,7 @@ export class CommandTypesService {
           desc: "The delimiter to insert between items (default is tab)."
         }
       ],
+      isArrayBased: false,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         value = this.textUtilsService.AsArray(value);
         var defaultDelimiter = context.isTabDelimited ? "\t" : " ";
@@ -539,25 +476,25 @@ export class CommandTypesService {
       name: "print",
       desc: "Prints output",
       para: [{ name: "<text>", desc: "What to print." }],
+      isArrayBased: false,
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
         if (explain) {
           return "print " + para;
         } else {
           var result = para;
-          var i: number;
           var arrayValue = isArray(value) ? (value as string[]) : ([ "", value ] as string[]);
           
           // Replace $0 with the whole value.
           result = result.replace(new RegExp("\\$0", "g"), arrayValue.join(""));
           
           // Replace $1..$9 with the value at index 1..9.
-          for (i = 1; i <= 9; i++) {
+          for (let i = 1; i <= 9; i++) {
             if (i <= arrayValue.length) {
               result = result.replace(new RegExp("\\$" + i, "g"), arrayValue[i - 1]);
             }
           }
           // Replace $-1..$-9 with the value -1..-9 from the end.
-          for (i = 1; i <= 9; i++) {
+          for (let i = 1; i <= 9; i++) {
             if (arrayValue.length - i >= 0) {
               result = result.replace(
                 new RegExp("\\$-" + i, "g"),
@@ -566,7 +503,7 @@ export class CommandTypesService {
             }
           }
           // Replace $A..$Z and $a..$z with the value at index 10..35.
-          for (i = 0; i < 26; i++) {
+          for (let i = 0; i < 26; i++) {
             if (i + 10 < arrayValue.length) {
               result = result.replace(
                 new RegExp(
