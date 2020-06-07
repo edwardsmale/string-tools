@@ -18,7 +18,7 @@ export class CommandParsingService {
     if (codeLine.length === 0) {
       return {
         commandType: this.commandTypesService.FindCommandType("noop"),
-        para: []
+        para: ""
       };
     } else {
       var codeLineSplit = codeLine.split(/\s+/);
