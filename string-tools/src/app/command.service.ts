@@ -35,7 +35,7 @@ export class CommandService {
       );
 
       var newValues: (string | string[])[] = [];
-      if (parsedCommand.commandType.name === "flat|batch") {
+      if (parsedCommand.commandType.name === "flat") {
 
         if (!parsedCommand.para || !this.textUtilsService.IsPositiveInteger(parsedCommand.para)) {
           var flattened = [];

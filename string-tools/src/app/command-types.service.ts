@@ -14,7 +14,7 @@ export class CommandTypesService {
   FindCommandType = function(name: string) {
     
     for (let i = 0; i < this.CommandTypes.length; i++) {
-      if (new RegExp("^" + this.CommandTypes[i].name).test(name)) {
+      if (this.CommandTypes[i].name === name) {
         return this.CommandTypes[i];
       }
     }
@@ -43,7 +43,7 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
-      name: "searchString|search-string",
+      name: "search",
       desc: "Sets the current search string",
       para: [
         {
@@ -231,7 +231,7 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
-      name: "match|filter",
+      name: "contains",
       desc: "Only include items which match a regex or search string",
       para: [
         {
@@ -266,7 +266,7 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
-      name: "flat|batch",
+      name: "flat",
       desc: "Flattens an array of arrays into one array, or batches items into arrays of a given size",
       para: [        {
         name: "Batch Size",
