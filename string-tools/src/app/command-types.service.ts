@@ -194,19 +194,21 @@ export class CommandTypesService {
     },
     {
       name: "at",
-      desc: "Selects specified columns from text that has been split.",
+      desc: "Takes items at certain indices.",
       para: [
         {
           name: "Column Indices",
-          desc: "Zero-based. Use negatives to count back from the end."
+          desc: "Zero-based. Nnegatives count back from the end."
         }
       ],
       exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+        
+        const indices = this.textUtilsService.ParseIntegers(para);
+
         if (explain) {
-          const indices = this.textUtilsService.ParseIntegers(para);
-          var positions: string[] = [];
+          let positions: string[] = [];
   
-          for (var i = 0; i < indices.length; i++) {
+          for (let i = 0; i < indices.length; i++) {
             if (indices[i] >= 0) {
               positions.push("[" + indices[i].toString() + "]");
             } else {
@@ -215,21 +217,43 @@ export class CommandTypesService {
           }
           return "Get the items at positions " + positions.join(" ");
         } else {
-          value = this.textUtilsService.AsArray(value);
-          const indices = para.trim().split(/[^\d\-]+/);
-          var result = [];
-          var i: number;
-          for (i = 0; i < indices.length; i++) {
-            var index = parseInt(indices[i], 10);
-            if (index < 0) {
-              index = value.length + index;
-            }
-            if (index >= 0 && index < value.length) {
-              result.push(value[index]);
-            }
-          }
 
-          return result;
+          if (Array.isArray(value)) {
+            let result = [];
+
+            for (let i = 0; i < indices.length; i++) {
+              var index = indices[i];
+
+              if (index < 0) {
+                index = value.length + index;
+              }
+
+              if (index >= 0 && index < value.length) {
+                result.push(value[index]);
+              }
+            }
+            
+            return result;
+
+          } else {
+
+            let included = false;
+
+            for (let i = 0; i < indices.length; i++) {
+
+              var index = indices[i];
+
+              if (index < 0) {
+                index = context.valuesLength + index;
+              }
+
+              if (index == context.currentIndex) {
+                included = true;
+              }
+            }
+
+            return included ? value : null;
+          }
         }
       }).bind(this)
     },

@@ -24,6 +24,7 @@ export class CommandService {
 
     var context = {
       currentIndex: 0,
+      valuesLength: 0,
       isTabDelimited: this.textUtilsService.IsTabDelimited(lines),
       regex: (null as string),
       searchString: (null as string),
@@ -103,10 +104,12 @@ export class CommandService {
 
         // Iterate through the lines and apply the command.
 
+        context.valuesLength = currentValues.length;
+
         for (j = 0; j < currentValues.length; j++) {
           
             context.currentIndex = j;
-            
+
             const newLineValue = parsedCommand.commandType.exec(
               currentValues[j], 
               parsedCommand.para, 
