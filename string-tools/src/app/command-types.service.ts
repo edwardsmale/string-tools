@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import { isArray } from "util";
 import { TextUtilsService } from './text-utils.service';
+import { SortService } from './sort.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommandTypesService {
 
-  constructor(private textUtilsService : TextUtilsService) { 
+  constructor(private textUtilsService : TextUtilsService, private sortService : SortService) { 
     this.textUtilsService = textUtilsService;
+    this.sortService = sortService;
   }
 
   FindCommandType = function(name: string) {
@@ -164,6 +166,48 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
+      name: "sort",
+      desc: "Sorts the items",
+      para: [
+        {
+          name: "index",
+          desc: "Index(es) of column to sort on"
+        }
+       ],
+      isArrayBased: false,
+      exec: (function(value: (string | string[])[], para: string, context: any, explain: boolean) {
+        if (!para) {
+          if (explain) {
+            return "Sorts the items";
+          } else {
+            return (value as string[]).sort();
+          }
+        } else {
+          var indices = this.textUtilsService.ParseIntegers(para);
+          if (explain) {
+            let positions: string[] = [];
+
+            for (let i = 0; i < indices.length; i++) {
+              if (!isNaN(indices[i])) {
+                if (indices[i] >= 0) {
+                  positions.push("[" + indices[i] + "]");
+                } else {
+                  positions.push("[" + Math.abs(indices[i]) + " from the end]");
+                }
+              }
+            }
+            return "Sorts on column" + (indices.length === 1 ? "" : "s") + " " + positions.join(" ");
+          } else if (!para) {
+            return this.sortService.SortLines(value, indices);
+          } else {
+            let indices = this.textUtilsService.ParseIntegers(para);
+
+            return this.sortService.SortArrays(value, indices);
+          }
+        }
+      }).bind(this)
+    },
+    {
       name: "skip",
       desc: "Skips the first N items",
       para: [
@@ -245,13 +289,16 @@ export class CommandTypesService {
           let positions: string[] = [];
   
           for (let i = 0; i < indices.length; i++) {
-            if (indices[i] >= 0) {
-              positions.push("[" + indices[i].toString() + "]");
-            } else {
-              positions.push("[" + Math.abs(indices[i]) + " from the end" + "]");
+            if (!isNaN(indices[i])) {
+              if (indices[i] >= 0) {
+                positions.push("[" + indices[i].toString() + "]");
+              } else {
+                positions.push("[" + Math.abs(indices[i]) + " from the end" + "]");
+              }
             }
           }
-          return "Get the items at positions " + positions.join(" ");
+
+          return "Get the item" + (positions.length === 1 ? "" : "s") + " at position" + (positions.length === 1 ? "" : "s") + " " + positions.join(" ");
         } else {
 
           let result = [];

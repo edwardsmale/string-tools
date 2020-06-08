@@ -100,7 +100,7 @@ export class CommandService {
 
         // Iterate through the lines and apply the command.
 
-        if (parsedCommand.commandType.isArrayBased && !Array.isArray(currentValues[0])) {
+        if ((parsedCommand.commandType.isArrayBased && !Array.isArray(currentValues[0])) || parsedCommand.commandType.name === "sort") {
 
           const newLineValue = parsedCommand.commandType.exec(
             currentValues, 

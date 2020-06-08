@@ -6,12 +6,7 @@
         placeholder="Enter your instructions here"
         spellcheck="false">
 split ,
-at 1, 2
-csv '
-enclose
-flat
-csv
-print INSERT INTO Account (AccountRef, Company) VALUES $0</textarea>
+sort 0</textarea>
       <textarea class="string-tools__textarea explain-window" readonly
       placeholder="An explanation of your instructions will be shown here">{{ explain }}</textarea>
     </div>
@@ -21,9 +16,12 @@ print INSERT INTO Account (AccountRef, Company) VALUES $0</textarea>
           (input)="ProcessClick(codePane.value, inputPane.value);"
           placeholder="Paste the text to process in here"
           spellcheck="false">
-1,W22355,foo
-2,X13989,bar
-3,Y22492,baz
+1,W11111,Edward,Smale,Leighton Buzzard
+1,W11112,Edward,Smale,Sheffield
+2,W22222,Stephen,Smale,Sheffield
+3,W33333,Jo,Smale,Roehampton
+4,W44444,Jo,Burton,Barnes
+5,W55555,Edward,Burton,London
         </textarea>
       </div>
       <div class="pane pane--right" #outputPane>

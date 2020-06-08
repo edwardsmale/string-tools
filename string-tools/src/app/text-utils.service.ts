@@ -20,6 +20,10 @@ export class TextUtilsService {
     return value.replace(new RegExp(regex, "g"), replacement);
   }
 
+  CompareCaseInsensitive(value1: string, value2: string) {
+    return value1.localeCompare(value2, 'en', {'sensitivity': 'base'});
+  }
+
   LinesToText(lines : string[]): string {
     return lines.join("\r\n");
   }
