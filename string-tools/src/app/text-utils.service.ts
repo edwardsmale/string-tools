@@ -57,12 +57,70 @@ export class TextUtilsService {
   }
 
   ParseIntegers = function(para: string) : number[] {
-    var split = para.trim().split(/[^\d\-]+/);
+    var split = para.trim().split(",");
     var integers = [];
-    for (var i = 0; i < split.length; i++) {
-      integers.push(parseInt(split[i], 10));
+    for (let i = 0; i < split.length; i++) {
+      let int = parseInt(split[i], 10);
+      if (!isNaN(int)) {
+        integers.push(int);
+      }
     }
     return integers;
+  };
+
+  ToOrdinal = function(n: number) : string {
+    let suffix = "th";
+
+    if (n !== 11 && n !== 12 && n !== 13) {
+      if (n % 10 === 1) {
+        suffix = "st";
+      }
+      else if (n % 10 === 2) {
+        suffix = "nd";
+      }
+      else if (n % 10 === 3) {
+        suffix = "rd";
+      }
+    }
+
+    return n + suffix;
+  };
+
+  FormatIndex = function(index: number, ascending: boolean) : string {
+    let result: string;
+              
+    if (index >= 0) {
+      result = "index " + index;
+    } else if (index === -1) {
+      result = "the last item";
+    } else {
+      result = "the " + this.ToOrdinal(Math.abs(index)) + " last item";
+    }
+
+    if (ascending === undefined) {
+      return result;
+    } else {
+      return result + (ascending ? "" : " descending");
+    }
+  };
+
+  ParseSortOrderIndices = function(para: string) : number[] {
+    var split = para.trim().split(",");
+    var result = [];
+    for (let i = 0; i < split.length; i++) {
+      let val = split[i].trim().replace(new RegExp("ending", "i"), "").toLowerCase();
+      let asc = !val.includes("d");
+      let int = parseInt(split[i], 10);
+      if (!isNaN(int)) {
+
+        result.push({
+          index: int,
+          ascending: asc,
+          description: this.FormatIndex(int, asc)
+        });
+      }
+    }
+    return result;
   };
   
   IsTabDelimited = function(lines: string[]) {

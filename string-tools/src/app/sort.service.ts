@@ -16,13 +16,16 @@ export class SortService {
     });
   }
 
-  SortArrays(values : string[][], indices : number[]) {
+  SortArrays(values : string[][], indices) {
 
     if (indices.length === 0) {
       return values;
     }
 
-    var index = indices[0];
+    // In this method's parameters, negative indexes are used 
+    // to signify descending order.
+
+    var index = indices[0].index;
 
     var valuesAtIndex = [];
 
@@ -36,6 +39,10 @@ export class SortService {
     }
 
     valuesAtIndex = valuesAtIndex.sort();
+
+    if (!indices[0].ascending) {
+      valuesAtIndex = valuesAtIndex.reverse();
+    }
 
     var arrayOfArrays:string[][][] = [];
 

@@ -167,7 +167,7 @@ export class CommandTypesService {
     },
     {
       name: "sort",
-      desc: "Sorts the items",
+      desc: "Sorts items",
       para: [
         {
           name: "index",
@@ -183,24 +183,26 @@ export class CommandTypesService {
             return (value as string[]).sort();
           }
         } else {
-          var indices = this.textUtilsService.ParseIntegers(para);
+          let indices = this.textUtilsService.ParseSortOrderIndices(para);
           if (explain) {
             let positions: string[] = [];
 
             for (let i = 0; i < indices.length; i++) {
-              if (!isNaN(indices[i])) {
-                if (indices[i] >= 0) {
-                  positions.push("[" + indices[i] + "]");
-                } else {
-                  positions.push("[" + Math.abs(indices[i]) + " from the end]");
-                }
+              
+              positions.push(indices[i].description);
+            }
+            return "Sort by " + positions.join(", then by ");
+          } else if (!para) {
+            return this.sortService.SortLines(value);
+          } else {
+
+            // Negative indexes count back from the end.
+            for (let i = 0; i < indices.length; i++) {
+
+              if (indices[i].index < 0) {
+                indices[i].index += value[0].length;
               }
             }
-            return "Sorts on column" + (indices.length === 1 ? "" : "s") + " " + positions.join(" ");
-          } else if (!para) {
-            return this.sortService.SortLines(value, indices);
-          } else {
-            let indices = this.textUtilsService.ParseIntegers(para);
 
             return this.sortService.SortArrays(value, indices);
           }
@@ -290,11 +292,7 @@ export class CommandTypesService {
   
           for (let i = 0; i < indices.length; i++) {
             if (!isNaN(indices[i])) {
-              if (indices[i] >= 0) {
-                positions.push("[" + indices[i].toString() + "]");
-              } else {
-                positions.push("[" + Math.abs(indices[i]) + " from the end" + "]");
-              }
+              positions.push(this.textUtilsService.FormatIndex(indices[i]));
             }
           }
 

@@ -4,9 +4,9 @@
       <textarea class="string-tools__textarea code-window" #codePane 
         (input)="UpdateExplanation(codePane.value, inputPane.value);ProcessClick(codePane.value, inputPane.value);"
         placeholder="Enter your instructions here"
-        spellcheck="false">
-split ,
-sort 0</textarea>
+        spellcheck="false">split ,
+sort 3,2
+csv \t</textarea>
       <textarea class="string-tools__textarea explain-window" readonly
       placeholder="An explanation of your instructions will be shown here">{{ explain }}</textarea>
     </div>
@@ -21,8 +21,7 @@ sort 0</textarea>
 2,W22222,Stephen,Smale,Sheffield
 3,W33333,Jo,Smale,Roehampton
 4,W44444,Jo,Burton,Barnes
-5,W55555,Edward,Burton,London
-        </textarea>
+5,W55555,Edward,Burton,London</textarea>
       </div>
       <div class="pane pane--right" #outputPane>
         <textarea class="string-tools__textarea pane-textarea" readonly
