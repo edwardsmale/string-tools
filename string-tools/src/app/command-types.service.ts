@@ -97,12 +97,27 @@ export class CommandTypesService {
             return "*** This command only works if a regex or search string has been set by an earlier 'regex' or 'search' instruction."
           }
         } else {
-          if (context.regex) {
-            return this.textUtilsService.GlobalRegexReplace(value as string, context.regex, para);
-          } else if (context.searchString) {
-            return this.textUtilsService.GlobalStringReplace(value as string, context.searchString, para);
+          if (Array.isArray(value)) {
+            let newValue: string[] = [];
+
+            for (let i = 0; i < (value as string[]).length; i++) {
+              if (context.regex) {
+                newValue.push(this.textUtilsService.GlobalRegexReplace(value[i], context.regex, para));
+              } else if (context.searchString) {
+                newValue.push(this.textUtilsService.GlobalStringReplace(value[i], context.searchString, para));
+              } else {
+                newValue.push(value[i]);
+              }              
+            }
+            return newValue;
           } else {
-            return value;
+            if (context.regex) {
+              return this.textUtilsService.GlobalRegexReplace(value as string, context.regex, para);
+            } else if (context.searchString) {
+              return this.textUtilsService.GlobalStringReplace(value as string, context.searchString, para);
+            } else {
+              return value;
+            }
           }
         }
       }).bind(this)
