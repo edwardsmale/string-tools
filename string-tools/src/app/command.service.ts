@@ -105,6 +105,7 @@ export class CommandService {
           const newLineValue = parsedCommand.commandType.exec(
             currentValues, 
             parsedCommand.para, 
+            parsedCommand.negated,
             context,
             explain
           );
@@ -120,6 +121,7 @@ export class CommandService {
             const newLineValue = parsedCommand.commandType.exec(
               currentValues[j], 
               parsedCommand.para, 
+              parsedCommand.negated,
               context,
               explain
             );
@@ -141,7 +143,8 @@ export class CommandService {
         var parsedCommand = this.commandParsingService.ParseCodeLine(codeLines[i]);
         var commandType = parsedCommand.commandType;
         var para = parsedCommand.para;
-        var explanation = parsedCommand.commandType.exec(lines, para, context, true);
+        var negated = parsedCommand.negated;
+        var explanation = parsedCommand.commandType.exec(lines, para, negated, context, true);
         outputLines.push(explanation);
       }
   

@@ -29,7 +29,7 @@ export class CommandTypesService {
       desc: "Does nothing",
       para: [],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         if (explain) {
           return "";
         } else {
@@ -47,11 +47,11 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
-        context.regex = this.textUtilsService.AsScalar(para);
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
+        context.regex = para;
         context.searchString = null;
         if (explain) {
-          return "Set the current regex to " + para;
+          return "Sets the current regex to " + para;
         } else {
           return value;
         }
@@ -67,11 +67,11 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
-        context.searchString = this.textUtilsService.AsScalar(para);
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
+        context.searchString = para;
         context.regex = null;
         if (explain) {
-          return "Set the current search string to " + para;
+          return "Sets the current search string to " + para;
         } else {
           return value;
         }
@@ -87,7 +87,7 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         if (explain) {
           if (context.regex) {
             return "Replaces text matching the regex '" + context.regex + "' with '" + para + "'";
@@ -117,7 +117,7 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         value = this.textUtilsService.AsScalar(value);
 
         if (!para && context.regex) {
@@ -175,7 +175,7 @@ export class CommandTypesService {
         }
        ],
       isArrayBased: false,
-      exec: (function(value: (string | string[])[], para: string, context: any, explain: boolean) {
+      exec: (function(value: (string | string[])[], para: string, negated: boolean, context: any, explain: boolean) {
         if (!para) {
           if (explain) {
             return "Sorts the items";
@@ -219,7 +219,7 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: true,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         var n = parseInt(para, 10);
         if (explain) {
           if (isNaN(n)) {
@@ -251,7 +251,7 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: true,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         var n = parseInt(para, 10);
         if (explain) {
           if (isNaN(n)) {
@@ -283,7 +283,7 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: true,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         
         const indices = this.textUtilsService.ParseIntegers(para);
 
@@ -319,7 +319,7 @@ export class CommandTypesService {
       }).bind(this)
     },
     {
-      name: "contains",
+      name: "match",
       desc: "Only include items which match a regex or search string",
       para: [
         {
@@ -328,16 +328,24 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: true,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
 
         var searchString = para || context.searchString;
 
         if (!searchString && context.regex) {          
           if (explain) {
-            return "Only include items which match the regex " + context.regex;
+            if (negated) {
+              return "Only include items which don't match the regex " + context.regex;
+            } else {
+              return "Only include items which match the regex " + context.regex;
+            }
           } else {
             if (isArray(value)) {
-              return (value as string[]).filter(function (val: string) { return new RegExp(context.regex).test(val); });
+              if (negated) {
+                return (value as string[]).filter(function (val: string) { return new RegExp(context.regex).test(val) === false; });
+              } else {
+                return (value as string[]).filter(function (val: string) { return new RegExp(context.regex).test(val) === true; });
+              }
             } else {
               return new RegExp(context.regex).test(value as string) ? value : null;
             }
@@ -346,9 +354,17 @@ export class CommandTypesService {
         else
         {
           if (explain) {
-            return "Only include items containing '" + searchString + "'";
+            if (negated) {
+              return "Only include items that don't contain '" + searchString + "'";
+            } else {
+              return "Only include items containing '" + searchString + "'";
+            }
           } else {
-            return (value as string[]).filter(function (val: string) { return val.includes(searchString); });
+            if (negated) {
+              return (value as string[]).filter(function (val: string) { return val.includes(searchString) === false; });
+            } else {
+              return (value as string[]).filter(function (val: string) { return val.includes(searchString) === true; });              
+            }
           }
         }
       }).bind(this)
@@ -361,7 +377,7 @@ export class CommandTypesService {
         desc: "If set, converts into batches of this size"
       }],
       isArrayBased: true,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         if (explain) {
           if (this.textUtilsService.IsNumeric(para)) {
             return "Convert into arrays of " + para + " items";
@@ -378,7 +394,7 @@ export class CommandTypesService {
       desc: "Put character(s) at the start and end of each item",
       para: [],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         var leftChar: string;
         var rightChar: string;
 
@@ -406,7 +422,7 @@ export class CommandTypesService {
       desc: "Tab-separates text that has been split.",
       para: [],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         if (explain) {
           return "Output the items in tab-separated format";
         } else {
@@ -445,7 +461,7 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         value = this.textUtilsService.AsArray(value);
 
         var options = {
@@ -546,7 +562,7 @@ export class CommandTypesService {
         }
       ],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         value = this.textUtilsService.AsArray(value);
         var defaultDelimiter = context.isTabDelimited ? "\t" : " ";
         para = para === "\\t" ? "\t" : para;
@@ -565,7 +581,7 @@ export class CommandTypesService {
       desc: "Prints output",
       para: [{ name: "<text>", desc: "What to print." }],
       isArrayBased: false,
-      exec: (function(value: string | string[], para: string, context: any, explain: boolean) {
+      exec: (function(value: string | string[], para: string, negated: boolean, context: any, explain: boolean) {
         if (explain) {
           return "print " + para;
         } else {

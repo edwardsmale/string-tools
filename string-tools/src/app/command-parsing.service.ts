@@ -22,12 +22,14 @@ export class CommandParsingService {
       };
     } else {
       var codeLineSplit = codeLine.split(/\s+/);
-      var commandName = codeLineSplit[0];
+      var negated = codeLineSplit[0].includes("!");
+      var commandName = codeLineSplit[0].replace("!", "");
       var commandType = this.commandTypesService.FindCommandType(commandName);
-      var para = codeLine.replace(commandName, "").trim();
+      var para = codeLine.replace("!", "").replace(commandName, "").trim();
       return {
         commandType: commandType,
-        para: para
+        para: para,
+        negated: negated
       };
     }
   }
